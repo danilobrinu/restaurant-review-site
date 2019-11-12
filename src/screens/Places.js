@@ -1,4 +1,5 @@
 import React from 'react';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,88 +31,66 @@ function PlaceList({ places }) {
 }
 
 function Places() {
-  const mapRef = React.useRef();
-  const [places, setPlaces] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const map = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 48.8737815, lng: 2.3501649 },
-      zoom: 16,
-      fullscreenControl: false,
-      mapTypeControl: false,
-      gestureHandling: 'cooperative',
-    });
-
-    const pyrmont = new window.google.maps.LatLng(48.8737815, 2.3501649);
-    const request = {
-      location: pyrmont,
-      radius: '500',
-      type: ['restaurant'],
-    };
-
-    const service = new window.google.maps.places.PlacesService(map);
-
-    service.nearbySearch(request, (results, status) => {
-      console.log(results);
-
-      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        const places = results.map(
-          ({
-            place_id = '',
-            name = '',
-            photos = [{ getUrl: () => null }],
-            types = [],
-            rating = 0,
-            user_ratings_total = 0,
-            geometry: { location },
-            icon = '',
-          }) => ({
-            id: place_id,
-            cover: photos[0].getUrl(),
-            tags: types.map(type => type.replace(/_/g, ' ')),
-            rating: rating.toFixed(1),
-            reviews: Array(user_ratings_total),
-            name,
-            location,
-            icon,
-          })
-        );
-
-        setPlaces(places);
-      }
-
-      setLoading(false);
-    });
-  }, []);
-
-  console.log(places);
+  const [query, setQuery] = React.useState('');
 
   return (
-    <div className="absolute inset-0">
-      <div className="relative w-full h-full">
-        <div className="relative w-full max-w-xl h-full">
-          {/* scrollable */}
-          <div className="max-h-full overflow-x-hidden overflo-y-auto scrolling-touch">
-            <div>
-              <div className="px-6 py-5">
-                <div className="mb-4">
-                  <div className="py-1 text-2xl font-bold">Top recommendations from locals</div>
-                  <div>
-                    From sightseeing to hidden gems, find out what makes the city unique with the
-                    help of the locals who know it best.
+    <>
+      <header>
+        <nav className="flex items-center h-20 border-b">
+          <div className="w-full px-6">
+            <form>
+              <div className="flex items-center h-12 shadow-md rounded">
+                <label className="w-full" htmlFor="query">
+                  <div className="flex">
+                    <div
+                      className="flex flex-initial w-10 h-10 items-center justify-center cursor-pointer"
+                      role="button"
+                      tabIndex="0"
+                    >
+                      <Icon icon="search" size="w-18" />
+                    </div>
+                    <input
+                      id="query"
+                      className="flex-auto h-10 placeholder-gray-600 font-bold rounded"
+                      name="query"
+                      value={query}
+                      placeholder="Search"
+                      onChange={e => setQuery(e.target.value)}
+                    />
+                    {query.length > 0 && (
+                      <div
+                        className="flex flex-initial w-10 h-10 items-center justify-center cursor-pointer"
+                        tabIndex="0"
+                        role="button"
+                        onKeyDown={e => {
+                          if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
+                            e.preventDefault();
+                            setQuery('');
+                          }
+                        }}
+                        onClick={() => setQuery('')}
+                      >
+                        <Icon icon="times" size="w-18" />
+                      </div>
+                    )}
                   </div>
-                </div>
-                {loading ? <PlaceListLoading /> : <PlaceList places={places} />}
+                </label>
               </div>
-            </div>
+            </form>
           </div>
-        </div>
-        <div className="fixed top-0 right-0 h-full" style={{ left: '36rem' }}>
-          <div className="w-full h-full" ref={mapRef} />
-        </div>
-      </div>
-    </div>
+        </nav>
+      </header>
+      <main>
+        {query.length < 1 && (
+          <div className="flex items-center hover:bg-gray-100 border-b select-none" role="button" tabIndex="0">
+            <div className="flex items-center justify-center w-12 h-12">
+              <Icon icon="map-marker" />
+            </div>
+            <div className="text-sm">Use my current location</div>
+          </div>
+        )}
+      </main>
+    </>
   );
 }
 

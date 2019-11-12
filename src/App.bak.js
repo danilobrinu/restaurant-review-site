@@ -27,40 +27,16 @@ const reducer = (state = {}, action) => {
   }
 };
 
-function Reviewer() {
-  const mapRef = React.useRef();
-
-  React.useEffect(() => {
-    console.log(mapRef.current);
-  }, []);
-
-  return (
-    <div className="absolute inset-0">
-      <div className="flex relative w-full h-full overflow-hidden">
-        <div className="flex-initial relative w-full max-w-xl h-full shadow-xl">
-          <div className="relative w-full max-h-full overflow-x-hidden overflow-y-auto">
-            <Router>
-              <Switch>
-                <Route path="/places/:placeId" component={PlacePage} />
-                <Route path="/places" component={PlacesPage} />
-                <Route path="/" component={HomePage} />
-              </Switch>
-            </Router>
-          </div>
-        </div>
-
-        <div className="flex-auto">
-          <div ref={mapRef} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   return (
     <AppProvider initialState={initialState} reducer={reducer}>
-      <Reviewer />
+      <Router>
+        <Switch>
+          <Route path="/places/:placeId" component={PlacePage} />
+          <Route path="/places" component={PlacesPage} />
+          <Route path="/" component={HomePage} />
+        </Switch>
+      </Router>
     </AppProvider>
   );
 }

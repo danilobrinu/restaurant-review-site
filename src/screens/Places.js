@@ -1,5 +1,10 @@
 import React from 'react';
+import { useMachine } from '@xstate/react';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+import { googleMapMachine } from '../google-map-machine';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,14 +52,14 @@ function Places() {
                       role="button"
                       tabIndex="0"
                     >
-                      <Icon icon="search" size="w-18" />
+                      <Icon icon="search" />
                     </div>
                     <input
                       id="query"
                       className="flex-auto h-10 placeholder-gray-600 font-bold rounded"
                       name="query"
                       value={query}
-                      placeholder="Search"
+                      placeholder="Search a Restaurant"
                       onChange={e => setQuery(e.target.value)}
                     />
                     {query.length > 0 && (
@@ -70,7 +75,7 @@ function Places() {
                         }}
                         onClick={() => setQuery('')}
                       >
-                        <Icon icon="times" size="w-18" />
+                        <Icon icon="times" />
                       </div>
                     )}
                   </div>
@@ -80,16 +85,7 @@ function Places() {
           </div>
         </nav>
       </header>
-      <main>
-        {query.length < 1 && (
-          <div className="flex items-center hover:bg-gray-100 border-b select-none" role="button" tabIndex="0">
-            <div className="flex items-center justify-center w-12 h-12">
-              <Icon icon="map-marker" />
-            </div>
-            <div className="text-sm">Use my current location</div>
-          </div>
-        )}
-      </main>
+      <main></main>
     </>
   );
 }

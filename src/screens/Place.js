@@ -16,17 +16,14 @@ function Place() {
   return (
     <>
       <header>
-        <nav className="flex items-center h-16 border-b">
-          <Link className="block w-full" to="/places">
+        <nav className="flex items-center absolute top-0 left-0 p-6">
+          <Link className="inline-block" to="/places">
             <div
-              className="flex items-center w-full h-12 cursor-pointer select-none"
+              className="flex items-center justify-center w-12 h-12 bg-white rounded-full cursor-pointer select-none"
               role="button"
               tabIndex="0"
             >
-              <div className="flex items-center justify-center w-12 h-12">
-                <Icon icon="chevron-left" />
-              </div>
-              <div className="text-sm leading-none">Back to places</div>
+              <Icon icon="chevron-left" />
             </div>
           </Link>
         </nav>
@@ -52,6 +49,7 @@ function Place() {
           </div>
         </div>
       </header>
+
       <main>
         <Divider className="mx-6" />
 

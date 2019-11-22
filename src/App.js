@@ -7,7 +7,7 @@ import './App.css';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import { restauranReviewSiteMachine } from './review-restaurant-machine';
+import { restauranReviewSiteMachine } from './review-restaurant-site-machine';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,13 +21,21 @@ library.add(fas);
 
 function Reviewer() {
   const mapRef = React.useRef();
-  const [current, send] = useMachine(restauranReviewSiteMachine);
+  const machine = useMachine(restauranReviewSiteMachine);
+  const [, send] = machine;
 
   React.useEffect(() => {
-    console.log(current);
-  }, [current]);
-
-  console.log(current);
+    send(
+      'CREATE',
+      new window.google.maps.Map(mapRef.current, {
+        center: { lat: 48.8737815, lng: 2.3501649 },
+        zoom: 16,
+        fullscreenControl: false,
+        mapTypeControl: false,
+        gestureHandling: 'cooperative',
+      })
+    );
+  }, [send]);
 
   return (
     <div className="absolute inset-0">
@@ -43,7 +51,7 @@ function Reviewer() {
                   <PlacesPage />
                 </Route>
                 <Route path="/">
-                  <HomePage />
+                  <HomePage machine={machine} />
                 </Route>
               </Switch>
             </Router>

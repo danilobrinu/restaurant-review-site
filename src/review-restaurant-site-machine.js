@@ -64,65 +64,64 @@ const getPlaceDetails = async ({ gmap, placeId }) =>
 
 export const restauranReviewSiteMachine = Machine({
   id: 'reviewRestaurant',
-  initial: 'position',
+  initial: 'idle',
   context: {
     position: null,
     gmap: null,
   },
   states: {
-    position: {
-      initial: 'idle',
+    idle: {
+      type: 'parallel',
       states: {
-        idle: {
-          on: {
-            REQUEST: 'requesting',
-          },
-        },
-        requesting: {
-          invoke: {
-            src: (a, b, c) => {
-              console.log(a, b, c);
-              return getCurrentPosition();
+        position: {
+          initial: 'idle',
+          states: {
+            idle: {
+              on: {
+                REQUEST: 'requesting',
+              },
             },
-            onDone: {
-              target: 'granted',
-              actions: assign({ position: (_, { data }) => data }),
+            requesting: {
+              invoke: {
+                src: () => getCurrentPosition(),
+                onDone: {
+                  target: 'granted',
+                  actions: assign({ position: (_, { data }) => data }),
+                },
+                onError: 'denied',
+              },
+              on: {
+                CANCEL: 'idle',
+              },
             },
-            onError: 'denied',
-          },
-          on: {
-            CANCEL: 'idle',
-          },
-        },
-        granted: {},
-        denied: {
-          on: {
-            REQUEST: 'requesting',
-          },
-        },
-      },
-      on: {
-        NEXT: 'map',
-      },
-    },
-    map: {
-      initial: 'idle',
-      states: {
-        idle: {
-          on: {
-            CREATE: 'creating',
-          },
-        },
-        creating: {
-          on: {
-            CANCEL: 'idle',
-            CREATED: {
-              target: 'created',
-              actions: assign({ gmap: (_, { data }) => data }),
+            granted: {},
+            denied: {
+              on: {
+                REQUEST: 'requesting',
+              },
             },
           },
         },
-        created: {},
+        map: {
+          initial: 'idle',
+          states: {
+            idle: {
+              on: {
+                CREATE: 'creating',
+              },
+            },
+            creating: {
+              on: {
+                CANCEL: 'idle',
+                CREATED: {
+                  target: 'created',
+                  actions: assign({ gmap: (_, { data }) => data }),
+                },
+              },
+            },
+            created: {},
+          },
+        },
       },
       on: {
         NEXT: 'places',

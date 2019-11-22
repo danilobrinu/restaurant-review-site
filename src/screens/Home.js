@@ -2,17 +2,21 @@ import React from 'react';
 import { useMachine } from '@xstate/react';
 import { Link } from 'react-router-dom';
 
-import { currentPositionMachine } from '../current-position-machine';
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+import { restauranReviewSiteMachine } from '../review-restaurant-site-machine';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 import { ReactComponent as MainImage } from '../main.svg';
 
-function Home() {
-  const [current, send] = useMachine(currentPositionMachine);
-  const { position } = current.context;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function Home({ machine }) {
+  const [current, send] = machine;
 
   React.useEffect(() => {
-    // send('GET_CURRENT_POSITION');
-
-    navigator.permissions.query({ name: 'geolocation' });
+    send('REQUEST');
 
     return () => send('CANCEL');
   }, [send]);
@@ -20,9 +24,6 @@ function Home() {
   return (
     <div className="w-full h-screen">
       <div className="flex flex-col w-full h-full">
-        {/* <div className="flex-1">
-          <img className="w-full h-full object-cover" alt="background" src="images/bg.jpg" />
-        </div> */}
         <div className="flex-1">
           <div className="w-full h-full p-6">
             <MainImage className="w-full h-auto" />
@@ -35,12 +36,12 @@ function Home() {
               distinctio, velit numquam alias inventore et ea itaque similique illo!
             </p>
             <div className="text-center">
-              {position ? (
+              {false ? (
                 <Link to="/places">
                   <button
                     className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 border-b-4 border-indigo-700 hover:border-indigo-500 rounded"
                     type="button"
-                    onClick={() => send('GET_CURRENT_POSITION')}
+                    onClick={() => {}}
                   >
                     Go to the Searcher
                   </button>
@@ -49,7 +50,7 @@ function Home() {
                 <button
                   className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 border-b-4 border-indigo-700 hover:border-indigo-500 rounded"
                   type="button"
-                  onClick={() => send('GET_CURRENT_POSITION')}
+                  onClick={() => {}}
                 >
                   Use my location
                 </button>

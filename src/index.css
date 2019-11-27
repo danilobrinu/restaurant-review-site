@@ -8,3 +8,14 @@ body {
 .min-w-32 {
   min-width: 8rem;
 }
+
+.overflow-y-scroll::-webkit-scrollbar {
+  width: 9px;
+  height: 7px;
+  -webkit-appearance: none;
+}
+.overflow-y-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9px;
+  background-color: #e2e2e2;
+  border: 2px solid #fff;
+}

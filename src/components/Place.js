@@ -38,7 +38,7 @@ function Place({ name = '', cover = '', rating = 0, tags = [], reviews = [], ...
           <span className="inline-block text-lg leading-none font-bold">{name}</span>
         </div>
         <PlaceTags tags={tags} />
-        <div className="text-xs font-bold mt-auto">{reviews.length} reviews</div>
+        <div className="text-xs font-bold text-gray-600 mt-auto">{reviews.length} reviews</div>
       </div>
     </div>
   );

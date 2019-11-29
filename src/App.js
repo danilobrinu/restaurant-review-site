@@ -8,14 +8,18 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import {
   getCurrentPosition,
   getNearbyPlaces,
-  normalizePlaces,
+  getPlaceDetails,
   getFilteredPlaces,
+  noop,
   range,
 } from './helpers';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Place from './components/Place';
+import Divider from './components/Divider';
+import Review from './components/Review';
+import Venue from './components/Venue';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -100,15 +104,23 @@ function App() {
     if (!service) return;
 
     getNearbyPlaces(service, centerPosition)
-      .then(result => {
-        const restaurants = normalizePlaces(result);
-
-        window.cache.places = { ...window.cache.places, ...restaurants };
-
-        setPlaces(restaurants);
-      })
-      .catch(() => {});
+      .then(result => setPlaces(result))
+      .catch(noop);
   }, [service, centerPosition]);
+
+  React.useEffect(() => {
+    if (!service || !place) return;
+
+    getPlaceDetails(service, place.id)
+      .then(result => {
+        window.cache.places[place.id] = result;
+
+        console.log(result);
+
+        setPlace(result);
+      })
+      .catch(noop);
+  }, [service, place]);
 
   const filteredPlaces = React.useMemo(
     () => getFilteredPlaces(places, query, minRating, maxRating),
@@ -118,8 +130,7 @@ function App() {
   return (
     <div className="absolute inset-0">
       <div className="flex relative w-full h-full overflow-hidden">
-        <div className="flex-initial relative w-full max-w-xl h-full shadow-xl">
-          {/* <div className="relative w-full h-full max-h-full overflow-x-hidden overflow-y-scroll"> */}
+        <div className="flex-initial relative w-full max-w-xl h-full shadow-xl z-30">
           <div className="flex flex-col w-full h-full">
             <header className="flex-none">
               <nav className="flex py-4 border-b">
@@ -207,17 +218,18 @@ function App() {
               <div className="absolute inset-0">
                 <div className="relative w-full h-full max-h-full overflow-x-hidden overflow-y-scroll">
                   <main className="p-6">
-                    {filteredPlaces.map(item => (
+                    {filteredPlaces.map(restaurant => (
                       <Place
-                        key={item.id}
-                        id={item.id}
-                        name={item.name}
-                        cover={item.cover}
-                        tags={item.tags}
-                        reviews={item.reviews}
-                        rating={item.rating}
-                        location={item.location}
-                        onClick={() => setPlace(item)}
+                        key={restaurant.id}
+                        id={restaurant.id}
+                        name={restaurant.name}
+                        cover={restaurant.cover}
+                        types={restaurant.types}
+                        reviews={restaurant.reviews}
+                        rating={restaurant.rating}
+                        ratings={restaurant.ratings}
+                        location={restaurant.location}
+                        onClick={() => setPlace(restaurant)}
                       />
                     ))}
                   </main>
@@ -225,23 +237,83 @@ function App() {
               </div>
             </div>
           </div>
-          {/* </div> */}
         </div>
 
         {place && (
-          <div
-            className="absolute max-w-xl h-screen bg-white"
-            style={{ left: '36rem', zIndex: 999 }}
-          >
-            <div
-              className="flex items-center justify-center w-12 h-12 bg-white rounded-full cursor-pointer select-none"
-              role="button"
-              tabIndex="0"
-              onClick={() => setPlace(null)}
-            >
-              <Icon icon="times" />
+          <div className="absolute left-xl w-full max-w-xl h-screen bg-white z-10">
+            <div className="relative w-full h-full max-h-full overflow-x-hidden overflow-y-scroll">
+              <header>
+                <nav className="flex items-center absolute top-0 right-0 p-6">
+                  <div
+                    className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md cursor-pointer select-none"
+                    role="button"
+                    tabIndex="0"
+                    onClick={() => setPlace(null)}
+                  >
+                    <Icon icon="times" />
+                  </div>
+                </nav>
+
+                <div className="mb-8">
+                  <img className="w-full h-64 object-cover" alt="cover" src={place.cover} />
+                </div>
+                <div className="px-6">
+                  <div className="m-0">
+                    <span className="text-xs uppercase font-bold text-gray-600">Restaurant</span>
+                  </div>
+                  <div className="mt-2">
+                    <div className="text-4xl font-bold leading-none my-2">{place.name}</div>
+                    <div>
+                      <span className="text-sm">{place.ratings} ratings</span>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              <main>
+                <Divider className="mx-6" />
+
+                <section>
+                  <div className="mx-6">
+                    <Venue
+                      name={place.name}
+                      address={place.address}
+                      phoneNumber={place.phoneNumber}
+                      types={place.types}
+                      gmap={place.gmap}
+                      website={place.website}
+                      isOpenNow={place.isOpen()}
+                    />
+                  </div>
+                </section>
+
+                <Divider className="mx-6" />
+
+                <section>
+                  <div className="mx-6">
+                    <header className="mb-6">
+                      <span className="text-2xl font-bold">Reviews</span>
+                    </header>
+
+                    {place.reviews.length > 0 ? (
+                      <>
+                        {place.reviews.map((review, index) => (
+                          <Review
+                            key={`review-${index}`}
+                            photo={review.profile_photo_url}
+                            author={review.author_name}
+                            date={review.relative_time_description}
+                            comment={review.text}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      <div className="">Without reviews yet</div>
+                    )}
+                  </div>
+                </section>
+              </main>
             </div>
-            {JSON.stringify(place)}
           </div>
         )}
 

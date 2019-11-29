@@ -22,11 +22,11 @@ export const getCurrentPosition = async () =>
 export const getNearbyPlaces = async (service, location) =>
   new Promise((resolve, reject) => {
     service.nearbySearch(
-      { location, radius: 500, type: ['restaurant'] },
+      { location, radius: 500, type: ['restaurant'], fields: ['formatted_address'] },
       (places, status) => {
         switch (status) {
           case window.google.maps.places.PlacesServiceStatus.OK:
-            resolve(places);
+            resolve(normalizePlaces(places));
             break;
           default:
             resolve([]);
@@ -39,65 +39,85 @@ export const getNearbyPlaces = async (service, location) =>
 
 export const getPlaceDetails = async (service, placeId) =>
   new Promise((resolve, reject) => {
-    service.getDetails(
-      {
-        placeId,
-        fields: [
-          'place_id',
-          'name',
-          'type',
-          'reviews',
-          'user_ratings_total',
-          'formatted_address',
-          'photo',
-          'formatted_phone_number',
-          'url',
-          'rating',
-        ],
-      },
-      (place, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          resolve(place);
-        } else {
-          reject();
+    if (Object.prototype.hasOwnProperty.call(window.cache.places, placeId)) {
+      resolve(window.cache.places[placeId]);
+    } else {
+      service.getDetails(
+        {
+          placeId,
+          fields: [
+            'place_id',
+            'name',
+            'type',
+            'reviews',
+            'user_ratings_total',
+            'formatted_address',
+            'photos',
+            'international_phone_number',
+            'url',
+            'rating',
+            'geometry',
+            'vicinity',
+            'website',
+          ],
+        },
+        (place, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+            resolve(normalizePlace(place));
+          } else {
+            reject();
+          }
         }
-      }
-    );
+      );
+    }
   });
 
 export const normalizePlaces = places =>
-  places.reduce(
-    (
-      accumulator,
-      {
-        place_id = '',
-        name = '',
-        photos = [{ getUrl: () => null }],
-        types = [],
-        rating = 0,
-        user_ratings_total = 0,
-        geometry: { location },
-        icon = '',
-      }
-    ) => {
-      accumulator[place_id] = {
-        id: place_id,
-        cover: photos[0].getUrl(),
-        tags: types.slice(-8).map(type => type.replace(/_/g, ' ')),
-        rating: rating.toFixed(1),
-        reviews: Array(user_ratings_total),
-        name,
-        location,
-        icon,
-      };
+  places.reduce((accumulator, place) => {
+    accumulator[place.place_id] = normalizePlace(place);
 
-      return accumulator;
-    },
-    {}
-  );
+    return accumulator;
+  }, {});
+
+export const normalizePlace = ({
+  place_id = '',
+  name = '',
+  photos = [{ getUrl: () => null }],
+  types = [],
+  rating = 0,
+  user_ratings_total = 0,
+  geometry: { location },
+  international_phone_number = '',
+  opening_hours: { isOpen = () => true } = {},
+  website = '',
+  vicinity = '',
+  formatted_address = '',
+  reviews = [],
+  url = '',
+  icon = '',
+}) => ({
+  id: place_id,
+  cover: photos[0].getUrl({ maxWidth: 570, maxHeight: 260 }),
+  types: types.slice(-8).map(type => type.replace(/_/g, ' ')),
+  rating: rating.toFixed(1),
+  phoneNumber: international_phone_number,
+  gmap: url,
+  address: formatted_address || vicinity,
+  ratings: user_ratings_total,
+  reviews,
+  isOpen,
+  website,
+  name,
+  location,
+  icon,
+});
 
 export const getFilteredPlaces = (places, query, minRating, maxRating) =>
   Object.values(places).filter(
     ({ name, rating }) =>
       name.toLowerCase().includes(query.toLowerCase()) && rating >= minRating && rating <= maxRating
   );
+
+export const noop = () => {};
+
+export const gmapEncodeURI = uri => window.encodeURIComponent(uri).replace(/%20/g, '+');

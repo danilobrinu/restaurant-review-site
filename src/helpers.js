@@ -72,13 +72,6 @@ export const getPlaceDetails = async (service, placeId) =>
     }
   });
 
-export const normalizePlaces = places =>
-  places.reduce((accumulator, place) => {
-    accumulator[place.place_id] = normalizePlace(place);
-
-    return accumulator;
-  }, {});
-
 export const normalizePlace = ({
   place_id = '',
   name = '',
@@ -104,13 +97,34 @@ export const normalizePlace = ({
   gmap: url,
   address: formatted_address || vicinity,
   ratings: user_ratings_total,
-  reviews,
+  reviews: normalizeReviews(reviews),
   isOpen,
   website,
   name,
   location,
   icon,
 });
+
+export const normalizePlaces = places =>
+  places.reduce((accumulator, place) => {
+    accumulator[place.place_id] = normalizePlace(place);
+
+    return accumulator;
+  }, {});
+
+export const normalizeReview = ({
+  profile_photo_url: photo,
+  author_name: author,
+  text: comment,
+  time,
+}) => ({
+  date: new Date(time),
+  photo,
+  author,
+  comment,
+});
+
+export const normalizeReviews = reviews => reviews.map(review => normalizeReview(review));
 
 export const getFilteredPlaces = (places, query, minRating, maxRating) =>
   Object.values(places).filter(

@@ -1,8 +1,23 @@
 import React from 'react';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import { gmapEncodeURI } from '../helpers';
 
-function Map() {
-  return <div className="w-full h-64 bg-indigo-400 rounded"></div>;
+function Map({ name }) {
+  const query = gmapEncodeURI(name);
+
+  return (
+    <div className="w-full h-64 bg-indigo-400 rounded">
+      <iframe
+        title="Map"
+        width="100%"
+        height="256"
+        frameBorder="0"
+        className="h-full h-64 b-0"
+        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.REACT_APP_GMAPS_API_KEY}&q=${query}`}
+        allowFullScreen
+      />
+    </div>
+  );
 }
 
 function Info({ children }) {
@@ -19,16 +34,16 @@ function InfoItem({ icon, action, children }) {
       <td className="w-6 pr-2 py-2 align-top">
         <Icon icon={icon} />
       </td>
-      <td className="w-8/12 py-2 align-top">{children}</td>
+      <td className="w-6/12 py-2 align-top">{children}</td>
       <td className="py-2 text-right align-top">{action}</td>
     </tr>
   );
 }
 
-function Venue() {
+function Venue({ name, address, gmap, phoneNumber, website, isOpenNow, types }) {
   return (
     <div className="w-full">
-      <Map />
+      <Map name={name} />
 
       <Info>
         <InfoItem
@@ -37,51 +52,53 @@ function Venue() {
             <a
               rel="noopener noreferrer"
               className="text-sm text-indigo-600 no-underline hover:underline"
-              href="http://google.com"
+              href={gmap}
               target="_blank"
             >
               Get directions
             </a>
           }
         >
-          <span className="block text-sm">2889 Mission St</span>
-          <span className="block text-sm">San Francisco, CA 94110</span>
-          <span className="block text-sm"> Mission District</span>
+          <span className="block text-sm">{address}</span>
         </InfoItem>
 
-        <InfoItem
-          icon="phone-alt"
-          action={
+        {phoneNumber.length > 0 && (
+          <InfoItem
+            icon="phone-alt"
+            action={
+              <a
+                rel="noopener noreferrer"
+                className="text-sm text-indigo-600 no-underline hover:underline"
+                href={`tel:${phoneNumber.replace(/ /g, '')}`}
+                target="_blank"
+              >
+                Call
+              </a>
+            }
+          >
+            <span className="text-sm">{phoneNumber}</span>
+          </InfoItem>
+        )}
+
+        {website.length > 0 && (
+          <InfoItem icon="globe">
             <a
               rel="noopener noreferrer"
               className="text-sm text-indigo-600 no-underline hover:underline"
-              href="http://google.com"
+              href={website}
               target="_blank"
             >
-              Call
+              {website.indexOf('facebook') > -1 ? 'facebook.com' : website}
             </a>
-          }
-        >
-          <span className="text-sm">+1 415-285-7117</span>
-        </InfoItem>
-
-        <InfoItem icon="globe">
-          <a
-            rel="noopener noreferrer"
-            className="text-sm text-indigo-600 no-underline hover:underline"
-            href="http://facebook.com"
-            target="_blank"
-          >
-            facebook.com
-          </a>
-        </InfoItem>
+          </InfoItem>
+        )}
 
         <InfoItem icon="clock">
-          <span className="text-sm">Closed now</span>
+          <span className="text-sm">{`${isOpenNow ? 'Open' : 'Closed now'}`}</span>
         </InfoItem>
 
         <InfoItem icon="utensils">
-          <span className="text-sm">Lunch, Dinner</span>
+          <span className="text-sm capitalize">{types.join(', ')}</span>
         </InfoItem>
       </Info>
     </div>

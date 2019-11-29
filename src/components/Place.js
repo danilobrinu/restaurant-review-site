@@ -18,9 +18,13 @@ function PlaceTags({ tags }) {
   );
 }
 
-function Place({ name = '', cover = '', rating = 0, tags = [], reviews = [], ...props }) {
+function Place({ name = '', cover = '', rating = 0, types = [], ratings = 0, ...props }) {
   return (
-    <div role="button" className="flex p-3 -mx-3 my-2 rounded hover:shadow-md focus:shadow-md" {...props}>
+    <div
+      role="button"
+      className="flex p-3 -mx-3 my-2 rounded hover:shadow-md focus:shadow-md"
+      {...props}
+    >
       <div className="w-32 min-w-32 h-32">
         {cover ? (
           <img alt="cover" className="w-32 h-32 object-cover bg-gray-200 rounded" src={cover} />
@@ -37,8 +41,8 @@ function Place({ name = '', cover = '', rating = 0, tags = [], reviews = [], ...
           </Tag>
           <span className="inline-block text-lg leading-none font-bold">{name}</span>
         </div>
-        <PlaceTags tags={tags} />
-        <div className="text-xs font-bold text-gray-600 mt-auto">{reviews.length} reviews</div>
+        <PlaceTags tags={types} />
+        <div className="text-xs font-bold text-gray-600 mt-auto">{ratings} ratings</div>
       </div>
     </div>
   );

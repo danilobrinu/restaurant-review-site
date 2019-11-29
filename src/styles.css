@@ -11412,13 +11412,13 @@ video {
   z-index: auto;
 }
 
-.overflow-y-scroll::-webkit-scrollbar {
+*::-webkit-scrollbar {
   width: 9px;
   height: 7px;
   -webkit-appearance: none;
 }
 
-.overflow-y-scroll::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   border-radius: 9px;
   background-color: #e2e2e2;
   border: 2px solid #fff;

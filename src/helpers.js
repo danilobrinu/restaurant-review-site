@@ -126,13 +126,16 @@ export const normalizeReview = ({
 
 export const normalizeReviews = reviews => reviews.map(review => normalizeReview(review));
 
-export const sortReviews = reviews => reviews.sort((left, right) => left.time - right.time);
+export const sortReviews = reviews =>
+  reviews.sort((left, right) => right.date.getTime() - left.date.getTime());
 
 export const getFilteredPlaces = (places, query, minRating, maxRating) =>
   Object.values(places).filter(
     ({ name, rating }) =>
       name.toLowerCase().includes(query.toLowerCase()) && rating >= minRating && rating <= maxRating
   );
+
+export const getSortedPlaces = places => places.sort((left, right) => right.rating - left.rating);
 
 export const noop = () => {};
 

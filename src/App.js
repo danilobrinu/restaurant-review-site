@@ -10,6 +10,7 @@ import {
   getNearbyPlaces,
   getPlaceDetails,
   getFilteredPlaces,
+  getSortedPlaces,
   noop,
   range,
 } from './helpers';
@@ -26,6 +27,7 @@ import Venue from './components/Venue';
 library.add(fas);
 
 window.cache = { places: {} };
+window.markers = [];
 
 function App() {
   const [query, setQuery] = React.useState('');
@@ -37,6 +39,10 @@ function App() {
   const [service, setService] = React.useState(null);
   const [minRating, setMinRating] = React.useState(1);
   const [maxRating, setMaxRating] = React.useState(5);
+  const [showAddReview, setShowAddReview] = React.useState(false);
+  const [reviewAuthor, setReviewAuthor] = React.useState('');
+  const [reviewComment, setReviewComment] = React.useState('');
+  const [reviewRating, setReviewRating] = React.useState(1);
   const mapRef = React.useRef();
 
   React.useEffect(() => {
@@ -60,14 +66,16 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    let getUserPosition = async () => {
-      const position = await getCurrentPosition();
-
-      setUserPosition(position);
-    };
-
-    getUserPosition();
+    getCurrentPosition()
+      .then(position => setUserPosition(position))
+      .catch(noop);
   }, []);
+
+  React.useEffect(() => {
+    if (!place) return;
+
+    setShowAddReview(false);
+  }, [place]);
 
   React.useEffect(() => {
     if (!map || !userPosition) return;
@@ -77,19 +85,11 @@ function App() {
       position: userPosition,
       icon: {
         url: 'images/marker.png',
-        scaledSize: {
-          width: 32,
-          height: 48,
-        },
-        labelOrigin: {
-          x: 16,
-          y: 18,
-        },
+        scaledSize: { width: 32, height: 48 },
+        labelOrigin: { x: 16, y: 18 },
       },
       label: '😊',
     });
-
-    map.setCenter(userPosition);
 
     setCenterPosition(userPosition);
   }, [map, userPosition]);
@@ -109,6 +109,46 @@ function App() {
   }, [service, centerPosition]);
 
   React.useEffect(() => {
+    if (!place) return;
+
+    if (!Object.prototype.hasOwnProperty.call(places, place.id)) {
+      setPlace(null);
+    }
+  }, [places, place]);
+
+  React.useEffect(() => {
+    if (!map) return;
+
+    window.markers.forEach(marker => marker.setMap(null));
+
+    const markers = Object.values(places).map(place => {
+      const { location: position, rating } = place;
+      const marker = new window.google.maps.Marker({
+        map,
+        position,
+        icon: {
+          url: 'images/marker.png',
+          scaledSize: { width: 32, height: 48 },
+          labelOrigin: { x: 16, y: 18 },
+        },
+        label: {
+          fontFamily: '"Montserrat", sans-serif',
+          fontWeight: '600',
+          fontSize: '12px',
+          color: '#fff',
+          text: rating,
+        },
+      });
+
+      marker.addListener('click', () => setPlace(place));
+
+      return marker;
+    });
+
+    window.markers = markers;
+  }, [map, places]);
+
+  React.useEffect(() => {
     if (!service || !place) return;
 
     getPlaceDetails(service, place.id)
@@ -123,9 +163,36 @@ function App() {
   }, [service, place]);
 
   const filteredPlaces = React.useMemo(
-    () => getFilteredPlaces(places, query, minRating, maxRating),
+    () => getSortedPlaces(getFilteredPlaces(places, query, minRating, maxRating)),
     [places, query, minRating, maxRating]
   );
+
+  const handleSubmitReview = e => {
+    e.preventDefault();
+
+    window.cache.places[place.id] = {
+      ...place,
+      reviews: [
+        {
+          photo:
+            'https://lh5.ggpht.com/-xeAcqbCc1fs/AAAAAAAAAAI/AAAAAAAAAAA/g9V9J9JSvos/s128-c0x00000000-cc-rp-mo/photo.jpg',
+          date: new Date(),
+          rating: reviewRating,
+          author: reviewAuthor,
+          comment: reviewComment,
+        },
+        ...place.reviews,
+      ],
+    };
+
+    setPlace(window.cache.places[place.id]);
+
+    setReviewRating(1);
+    setReviewAuthor('');
+    setReviewComment('');
+
+    setShowAddReview(false);
+  };
 
   return (
     <div className="absolute inset-0">
@@ -225,10 +292,8 @@ function App() {
                         name={restaurant.name}
                         cover={restaurant.cover}
                         types={restaurant.types}
-                        reviews={restaurant.reviews}
                         rating={restaurant.rating}
                         ratings={restaurant.ratings}
-                        location={restaurant.location}
                         onClick={() => setPlace(restaurant)}
                       />
                     ))}
@@ -270,7 +335,7 @@ function App() {
                 </div>
               </header>
 
-              <main>
+              <main className="mb-6">
                 <Divider className="mx-6" />
 
                 <section>
@@ -300,10 +365,10 @@ function App() {
                         {place.reviews.map((review, index) => (
                           <Review
                             key={`review-${index}`}
-                            photo={review.profile_photo_url}
-                            author={review.author_name}
-                            date={review.relative_time_description}
-                            comment={review.text}
+                            photo={review.photo}
+                            author={review.author}
+                            date={review.date.toUTCString()}
+                            comment={review.comment}
                           />
                         ))}
                       </>
@@ -312,6 +377,108 @@ function App() {
                     )}
                   </div>
                 </section>
+
+                <section>
+                  <div className="mx-6">
+                    <button
+                      className="w-full py-4 text-sm font-semibold leading-none text-white uppercase tracking-wider bg-gray-900 rounded-lg"
+                      onClick={() => setShowAddReview(true)}
+                    >
+                      Add Review
+                    </button>
+                  </div>
+                </section>
+
+                {showAddReview && (
+                  <section className="mt-4">
+                    <div className="mx-6">
+                      <div className="p-4 border rounded">
+                        <form onSubmit={handleSubmitReview}>
+                          <div>
+                            <div className="text-sm">Rating</div>
+                            <div className="mt-2">
+                              <div className="flex justify-around">
+                                <input
+                                  type="radio"
+                                  name="rating"
+                                  value="1"
+                                  checked={reviewRating === 1}
+                                  onChange={e => setReviewRating(+e.target.value)}
+                                />
+                                <input
+                                  type="radio"
+                                  name="rating"
+                                  value="2"
+                                  checked={reviewRating === 2}
+                                  onChange={e => setReviewRating(+e.target.value)}
+                                />
+                                <input
+                                  type="radio"
+                                  name="rating"
+                                  value="3"
+                                  checked={reviewRating === 3}
+                                  onChange={e => setReviewRating(+e.target.value)}
+                                />
+                                <input
+                                  type="radio"
+                                  name="rating"
+                                  value="4"
+                                  checked={reviewRating === 4}
+                                  onChange={e => setReviewRating(+e.target.value)}
+                                />
+                                <input
+                                  type="radio"
+                                  name="rating"
+                                  value="5"
+                                  checked={reviewRating === 5}
+                                  onChange={e => setReviewRating(+e.target.value)}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="text-sm">Name</div>
+                            <div className="mt-2">
+                              <input
+                                className="w-full px-4 py-3 bg-gray-200 rounded shadow"
+                                type="text"
+                                name="name"
+                                placeholder="Name"
+                                value={reviewAuthor}
+                                onChange={e => setReviewAuthor(e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="text-sm">Comment</div>
+                            <div className="mt-2">
+                              <textarea
+                                className="w-full px-4 py-3 bg-gray-200 rounded shadow"
+                                name="comment"
+                                placeholder="Comment"
+                                value={reviewComment}
+                                onChange={e => setReviewComment(e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="flex justify-end">
+                              <button
+                                className="px-4 py-3 text-white bg-indigo-800 rounded-lg"
+                                type="submit"
+                              >
+                                Send
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </section>
+                )}
               </main>
             </div>
           </div>

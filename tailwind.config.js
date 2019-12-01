@@ -7,6 +7,9 @@ module.exports = {
       inset: {
         xl: '36rem',
       },
+      zIndex: {
+        '-1': '-1',
+      },
     },
   },
   variants: {},

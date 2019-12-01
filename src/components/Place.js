@@ -18,7 +18,7 @@ function PlaceTags({ tags }) {
   );
 }
 
-function Place({ name = '', cover = '', rating = 0, types = [], ratings = 0, ...props }) {
+function Place({ name = '', cover = '', rating = null, types = [], ratings = 0, ...props }) {
   return (
     <div
       role="button"
@@ -37,7 +37,7 @@ function Place({ name = '', cover = '', rating = 0, types = [], ratings = 0, ...
       <div className="flex flex-col items-start w-full pl-4">
         <div className="flex items-start mb-2">
           <Tag className="mr-2" color="indigo">
-            {rating}
+            {rating || 'New'}
           </Tag>
           <span className="inline-block text-lg leading-none font-bold">{name}</span>
         </div>

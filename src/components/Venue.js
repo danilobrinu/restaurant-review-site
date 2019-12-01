@@ -61,7 +61,7 @@ function Venue({ name, address, gmap, phoneNumber, website, isOpenNow, types }) 
             ) : null
           }
         >
-          <span className="block text-sm">{address}</span>
+          <span className="text-sm text-gray-900">{address}</span>
         </InfoItem>
 
         {phoneNumber.length > 0 && (
@@ -78,7 +78,7 @@ function Venue({ name, address, gmap, phoneNumber, website, isOpenNow, types }) 
               </a>
             }
           >
-            <span className="text-sm">{phoneNumber}</span>
+            <span className="text-sm text-gray-900">{phoneNumber}</span>
           </InfoItem>
         )}
 
@@ -96,11 +96,11 @@ function Venue({ name, address, gmap, phoneNumber, website, isOpenNow, types }) 
         )}
 
         <InfoItem icon="clock">
-          <span className="text-sm">{`${isOpenNow ? 'Open' : 'Closed now'}`}</span>
+          <span className="text-sm text-gray-900">{`${isOpenNow ? 'Open' : 'Closed now'}`}</span>
         </InfoItem>
 
         <InfoItem icon="utensils">
-          <span className="text-sm capitalize">{types.join(', ')}</span>
+          <span className="text-sm capitalize text-gray-900">{types.join(', ')}</span>
         </InfoItem>
       </Info>
     </div>

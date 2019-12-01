@@ -18,7 +18,7 @@ function PlaceTags({ tags }) {
   );
 }
 
-function Place({ name = '', cover = '', rating = null, types = [], ratings = 0, ...props }) {
+function Place({ name = '', cover = '', rating = 0, ratings = 0, types = [], ...props }) {
   return (
     <div
       role="button"
@@ -34,7 +34,7 @@ function Place({ name = '', cover = '', rating = null, types = [], ratings = 0, 
           </div>
         )}
       </div>
-      <div className="flex flex-col items-start w-full pl-4">
+      <div className="flex flex-col items-start flex-1 pl-4">
         <div className="flex items-start mb-2">
           <Tag className="mr-2" color="indigo">
             {rating || 'New'}
@@ -42,7 +42,9 @@ function Place({ name = '', cover = '', rating = null, types = [], ratings = 0, 
           <span className="inline-block text-lg leading-none font-bold">{name}</span>
         </div>
         <PlaceTags tags={types} />
-        <div className="text-xs font-bold text-gray-600 mt-auto">{ratings} ratings</div>
+        <div className="text-xs font-bold text-gray-600 mt-auto">
+          {ratings > 0 ? `${ratings} ratings` : 'Without ratings'}
+        </div>
       </div>
     </div>
   );

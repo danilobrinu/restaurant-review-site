@@ -8,12 +8,12 @@ function Review({ photo, author, date, comment }) {
           <img className="w-12 h-12 rounded-full" alt={author} src={photo} />
         </div>
         <div className="ml-2">
-          <div className="text-sm leading-snug font-bold">{author}</div>
-          <div className="text-sm leading-snug">{date}</div>
+          <div className="text-sm leading-snug font-bold text-gray-900">{author}</div>
+          <div className="text-sm leading-snug text-gray-600">{date}</div>
         </div>
       </div>
       <div className="my-4">
-        <div dir="ltr" className="text-base">
+        <div dir="ltr" className="text-base text-gray-900">
           {comment}
         </div>
       </div>

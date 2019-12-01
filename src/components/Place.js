@@ -39,7 +39,7 @@ function Place({ name = '', cover = '', rating = 0, ratings = 0, types = [], ...
           <Tag className="mr-2" color="indigo">
             {rating || 'New'}
           </Tag>
-          <span className="inline-block text-lg leading-none font-bold">{name}</span>
+          <span className="inline-block text-lg font-bold leading-none text-gray-900">{name}</span>
         </div>
         <PlaceTags tags={types} />
         <div className="text-xs font-bold text-gray-600 mt-auto">

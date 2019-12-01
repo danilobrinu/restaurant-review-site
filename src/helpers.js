@@ -87,7 +87,6 @@ export const normalizePlace = ({
   formatted_address = '',
   reviews = [],
   url = '',
-  icon = '',
 }) => ({
   id: place_id,
   cover: photos[0].getUrl({ maxWidth: 570, maxHeight: 260 }),
@@ -102,7 +101,6 @@ export const normalizePlace = ({
   website,
   name,
   location,
-  icon,
 });
 
 export const normalizePlaces = places =>

@@ -39,8 +39,8 @@ export const getNearbyPlaces = async (service, location) =>
 
 export const getPlaceDetails = async (service, placeId) =>
   new Promise((resolve, reject) => {
-    if (Object.prototype.hasOwnProperty.call(window.cache.places, placeId)) {
-      resolve(window.cache.places[placeId]);
+    if (Object.prototype.hasOwnProperty.call(window.places, placeId)) {
+      resolve(window.places[placeId]);
     } else {
       service.getDetails(
         {
@@ -91,7 +91,7 @@ export const normalizePlace = ({
   id: place_id,
   cover: photos[0].getUrl({ maxWidth: 570, maxHeight: 260 }),
   types: types.slice(-8).map(type => type.replace(/_/g, ' ')),
-  rating: rating.toFixed(1),
+  rating: +rating.toFixed(1),
   phoneNumber: international_phone_number,
   gmap: url,
   address: formatted_address || vicinity,
@@ -138,3 +138,5 @@ export const getSortedPlaces = places => places.sort((left, right) => right.rati
 export const noop = () => {};
 
 export const gmapEncodeURI = uri => window.encodeURIComponent(uri).replace(/%20/g, '+');
+
+export const uniqid = () => (new Date().getTime() * Math.random()).toString(32).replace('.', '');

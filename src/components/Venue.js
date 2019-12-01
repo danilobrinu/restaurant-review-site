@@ -49,14 +49,16 @@ function Venue({ name, address, gmap, phoneNumber, website, isOpenNow, types }) 
         <InfoItem
           icon="map-marker"
           action={
-            <a
-              rel="noopener noreferrer"
-              className="text-sm text-indigo-600 no-underline hover:underline"
-              href={gmap}
-              target="_blank"
-            >
-              Get directions
-            </a>
+            gmap ? (
+              <a
+                rel="noopener noreferrer"
+                className="text-sm text-indigo-600 no-underline hover:underline"
+                href={gmap}
+                target="_blank"
+              >
+                Get directions
+              </a>
+            ) : null
           }
         >
           <span className="block text-sm">{address}</span>

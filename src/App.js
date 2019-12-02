@@ -1,6 +1,4 @@
 import React from 'react';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,7 +11,6 @@ import {
   getSortedPlaces,
   noop,
   range,
-  uniqid,
 } from './helpers';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +20,10 @@ import Divider from './components/Divider';
 import Review from './components/Review';
 import Venue from './components/Venue';
 import Scrollable from './components/Scrollable';
+import AddRestaurantForm from './components/AddRestaurantForm';
+import AddReviewForm from './components/AddReviewForm';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-library.add(fas);
 
 window.places = {};
 window.markers = {};
@@ -41,20 +38,9 @@ function App() {
   const [service, setService] = React.useState(null);
   const [minRating, setMinRating] = React.useState(0);
   const [maxRating, setMaxRating] = React.useState(5);
-
   const [showAddReview, setShowAddReview] = React.useState(false);
-  const [reviewAuthor, setReviewAuthor] = React.useState('');
-  const [reviewComment, setReviewComment] = React.useState('');
-  const [reviewRating, setReviewRating] = React.useState(1);
-
   const [showAddRestaurant, setShowAddRestaurant] = React.useState(false);
-  const [restaurantCover, setRestaurantCover] = React.useState('');
-  const [restaurantName, setRestaurantName] = React.useState('');
-  const [restaurantLocationLatitude, setRestaurantLocationLatitude] = React.useState('');
-  const [restaurantLocationLongitude, setRestaurantLocationLongitude] = React.useState('');
-  const [restaurantPhoneNumber, setRestaurantPhoneNumber] = React.useState('');
-  const [restaurantWebsite, setRestaurantWebsite] = React.useState('');
-  const [restaurantAddress, setRestaurantAddress] = React.useState('');
+  const [locationClicked, setLocationClicked] = React.useState({ lat: 0, lng: 0 });
 
   const mapRef = React.useRef();
 
@@ -69,9 +55,7 @@ function App() {
     const gService = new window.google.maps.places.PlacesService(gMap);
 
     gMap.addListener('click', e => {
-      setRestaurantLocationLatitude(e.latLng.lat());
-      setRestaurantLocationLongitude(e.latLng.lng());
-
+      setLocationClicked(e.latLng.toJSON());
       setShowAddRestaurant(true);
     });
 
@@ -183,52 +167,16 @@ function App() {
     [places, query, minRating, maxRating]
   );
 
-  const handleSubmitRestaurant = e => {
-    e.preventDefault();
+  const addNewRestaurant = data => {
+    window.places[data.id] = data;
 
-    setPlace(null);
-
-    const restaurant = {
-      address: restaurantAddress,
-      cover: restaurantCover,
-      gmap: null,
-      id: uniqid(),
-      isOpen: () => true,
-      location: new window.google.maps.LatLng(
-        restaurantLocationLatitude,
-        restaurantLocationLongitude
-      ),
-      name: restaurantName,
-      phoneNumber: restaurantPhoneNumber,
-      rating: 0,
-      ratings: 0,
-      reviews: [],
-      types: ['restaurant'],
-      website: restaurantWebsite,
-    };
-
-    window.places[restaurant.id] = restaurant;
-
-    setPlaces(state => ({ ...state, [restaurant.id]: restaurant }));
-
+    setPlaces(state => ({ ...state, [data.id]: window.places[data.id] }));
     setShowAddRestaurant(false);
   };
 
-  const handleSubmitReview = e => {
-    e.preventDefault();
-
-    const reviews = [
-      {
-        photo:
-          'https://lh5.ggpht.com/-xeAcqbCc1fs/AAAAAAAAAAI/AAAAAAAAAAA/g9V9J9JSvos/s128-c0x00000000-cc-rp-mo/photo.jpg',
-        date: new Date(),
-        rating: reviewRating,
-        author: reviewAuthor,
-        comment: reviewComment,
-      },
-      ...place.reviews,
-    ];
-    const rating = +((place.rating + reviewRating) / reviews.length).toFixed(1);
+  const addNewReview = (data, place) => {
+    const reviews = [data, ...place.reviews];
+    const rating = +((place.rating + data.rating) / 2).toFixed(1);
     const ratings = place.ratings + 1;
 
     window.places[place.id] = {
@@ -237,16 +185,10 @@ function App() {
       ratings,
       reviews,
     };
+    window.markers[place.id].setLabel(rating.toString());
 
     setPlace(window.places[place.id]);
     setPlaces(state => ({ ...state, [place.id]: window.places[place.id] }));
-
-    window.markers[place.id].setLabel(rating.toString());
-
-    setReviewRating(1);
-    setReviewAuthor('');
-    setReviewComment('');
-
     setShowAddReview(false);
   };
 
@@ -436,7 +378,7 @@ function App() {
                         {place.reviews.map((review, index) => (
                           <Review
                             key={`review-${index}`}
-                            photo={review.photo}
+                            avatar={review.avatar}
                             author={review.author}
                             date={review.date.toUTCString()}
                             comment={review.comment}
@@ -474,142 +416,10 @@ function App() {
             <div className="absolute inset-0 bg-black opacity-50 -z-1" />
 
             <div className="p-6">
-              <div className="bg-white rounded-lg overflow-hidden">
-                <form onSubmit={handleSubmitReview}>
-                  <div className="px-4 pt-4 pb-2 border-b">
-                    <div className="text-xs leading-none">Rating</div>
-                    <div className="mt-1">
-                      <div className="flex justify-around py-1">
-                        <label role="button" tabIndex="0" className="cursor-pointer">
-                          <Icon
-                            className={reviewRating === 1 ? 'text-gray-900' : 'text-gray-600'}
-                            icon="angry"
-                            size="3x"
-                          />
-                          <input
-                            className="hidden"
-                            type="radio"
-                            name="rating"
-                            value="1"
-                            checked={reviewRating === 1}
-                            onChange={e => setReviewRating(+e.target.value)}
-                          />
-                        </label>
-                        <label role="button" tabIndex="0" className="cursor-pointer">
-                          <Icon
-                            className={reviewRating === 2 ? 'text-gray-900' : 'text-gray-600'}
-                            icon="frown"
-                            size="3x"
-                          />
-                          <input
-                            className="hidden"
-                            type="radio"
-                            name="rating"
-                            value="2"
-                            checked={reviewRating === 2}
-                            onChange={e => setReviewRating(+e.target.value)}
-                          />
-                        </label>
-                        <label role="button" tabIndex="0" className="cursor-pointer">
-                          <Icon
-                            className={reviewRating === 3 ? 'text-gray-900' : 'text-gray-600'}
-                            icon="meh"
-                            size="3x"
-                          />
-                          <input
-                            className="hidden"
-                            type="radio"
-                            name="rating"
-                            value="3"
-                            checked={reviewRating === 3}
-                            onChange={e => setReviewRating(+e.target.value)}
-                          />
-                        </label>
-                        <label role="button" tabIndex="0" className="cursor-pointer">
-                          <Icon
-                            className={reviewRating === 4 ? 'text-gray-900' : 'text-gray-600'}
-                            icon="smile"
-                            size="3x"
-                          />
-                          <input
-                            className="hidden"
-                            type="radio"
-                            name="rating"
-                            value="4"
-                            checked={reviewRating === 4}
-                            onChange={e => setReviewRating(+e.target.value)}
-                          />
-                        </label>
-                        <label role="button" tabIndex="0" className="cursor-pointer">
-                          <Icon
-                            className={reviewRating === 5 ? 'text-gray-900' : 'text-gray-600'}
-                            icon="laugh"
-                            size="3x"
-                          />
-                          <input
-                            className="hidden"
-                            type="radio"
-                            name="rating"
-                            value="5"
-                            checked={reviewRating === 5}
-                            onChange={e => setReviewRating(+e.target.value)}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2 border-b">
-                    <div className="text-xs leading-none">Name</div>
-                    <div className="mt-1">
-                      <input
-                        className="w-full py-1"
-                        type="text"
-                        placeholder="Enter your name"
-                        value={reviewAuthor}
-                        onChange={e => setReviewAuthor(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2">
-                    <div className="text-xs leading-none">Comment</div>
-                    <div className="mt-1">
-                      <textarea
-                        className="w-full py-1"
-                        type="text"
-                        rows="4"
-                        placeholder="Write a comment about your experience"
-                        value={reviewComment}
-                        onChange={e => setReviewComment(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-gray-100">
-                    <div className="flex justify-end">
-                      <button
-                        className="px-4 py-2 text-sm font-semibold text-indigo-600 rounded"
-                        type="button"
-                        onClick={() => {
-                          setReviewRating(1);
-                          setReviewAuthor('');
-                          setReviewComment('');
-                          setShowAddReview(false);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="px-4 py-2 ml-2 text-sm font-semibold text-white bg-indigo-600 rounded"
-                        type="submit"
-                      >
-                        Send
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
+              <AddReviewForm
+                handleSubmit={(_, review) => addNewReview(review, place)}
+                handleCancel={() => setShowAddReview(false)}
+              />
             </div>
           </div>
         )}
@@ -618,139 +428,11 @@ function App() {
           <div className="absolute left-xl w-full max-w-xl h-screen z-20">
             <div className="absolute inset-0 bg-black opacity-50 -z-1" />
             <div className="p-6">
-              <div className="bg-white rounded-lg overflow-hidden">
-                <form onSubmit={handleSubmitRestaurant}>
-                  <div className="relative bg-indigo-400 h-64">
-                    <label className="absolute inset-0 cursor-pointer">
-                      {restaurantCover ? (
-                        <img
-                          className="w-full h-full object-fit"
-                          alt={restaurantName}
-                          src={restaurantCover}
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center w-full h-full">
-                          <Icon icon="image" color="#fff" size="8x" />
-                          <div className="inline-block px-4 py-1 text-xs font-semibold text-indigo-800 bg-indigo-200 rounded-lg">
-                            Add a preview image
-                          </div>
-                          <input
-                            className="hidden"
-                            type="file"
-                            accept="image/png, image/jpeg"
-                            placeholder="Cover"
-                            onChange={e =>
-                              setRestaurantCover(URL.createObjectURL(e.target.files[0]))
-                            }
-                          />
-                        </div>
-                      )}
-                    </label>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2 border-b">
-                    <div className="text-xs leading-none">Name</div>
-                    <div className="mt-1">
-                      <input
-                        className="w-full py-1"
-                        type="text"
-                        placeholder="What is the name of the restaurant?"
-                        value={restaurantName}
-                        onChange={e => setRestaurantName(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2 border-b">
-                    <div className="text-xs leading-none">Location</div>
-                    <div className="flex mt-1">
-                      <div className="w-6/12">
-                        <input
-                          className="w-full py-1"
-                          type="text"
-                          placeholder="Latitude"
-                          value={restaurantLocationLatitude}
-                          onChange={e => setRestaurantLocationLatitude(e.target.value)}
-                        />
-                      </div>
-                      <div className="w-6/12">
-                        <input
-                          className="w-full py-1"
-                          type="text"
-                          placeholder="Longitude"
-                          value={restaurantLocationLongitude}
-                          onChange={e => setRestaurantLocationLongitude(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2 border-b">
-                    <div className="text-xs leading-none">Phone Number</div>
-                    <div className="mt-1">
-                      <input
-                        className="w-full py-1"
-                        type="text"
-                        placeholder="Phone Number"
-                        value={restaurantPhoneNumber}
-                        onChange={e => setRestaurantPhoneNumber(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2 border-b">
-                    <div className="text-xs leading-none">Website</div>
-                    <div className="mt-1">
-                      <input
-                        className="w-full py-1"
-                        type="text"
-                        placeholder="Website"
-                        value={restaurantWebsite}
-                        onChange={e => setRestaurantWebsite(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-2">
-                    <div className="text-xs leading-none">Address</div>
-                    <div className="mt-1">
-                      <input
-                        className="w-full py-1"
-                        type="text"
-                        placeholder="Entrer the address of the restaurant"
-                        value={restaurantAddress}
-                        onChange={e => setRestaurantAddress(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-gray-100">
-                    <div className="flex justify-end">
-                      <button
-                        className="px-4 py-2 text-sm font-semibold text-indigo-600 rounded"
-                        type="button"
-                        onClick={() => {
-                          setRestaurantAddress('');
-                          setRestaurantLocationLatitude('');
-                          setRestaurantLocationLongitude('');
-                          setRestaurantName('');
-                          setRestaurantWebsite('');
-                          setRestaurantPhoneNumber('');
-                          setShowAddRestaurant(false);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="px-4 py-2 ml-2 text-sm font-semibold text-white bg-indigo-600 rounded"
-                        type="submit"
-                      >
-                        Send
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
+              <AddRestaurantForm
+                handleSubmit={(_, restaurant) => addNewRestaurant(restaurant)}
+                handleCancel={() => setShowAddRestaurant(false)}
+                location={locationClicked}
+              />
             </div>
           </div>
         )}

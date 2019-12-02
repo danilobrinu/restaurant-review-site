@@ -601,7 +601,7 @@ function App() {
                         Cancel
                       </button>
                       <button
-                        className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded"
+                        className="px-4 py-2 ml-2 text-sm font-semibold text-white bg-indigo-600 rounded"
                         type="submit"
                       >
                         Send
@@ -742,7 +742,7 @@ function App() {
                         Cancel
                       </button>
                       <button
-                        className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded"
+                        className="px-4 py-2 ml-2 text-sm font-semibold text-white bg-indigo-600 rounded"
                         type="submit"
                       >
                         Send

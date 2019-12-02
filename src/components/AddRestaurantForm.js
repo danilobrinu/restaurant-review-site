@@ -63,8 +63,8 @@ function AddRestaurantForm({ location, handleSubmit, handleCancel }) {
     <div className="bg-white rounded-lg overflow-hidden">
       <form
         onSubmit={e => {
-          e.preventDefault();
           e.persist();
+          e.preventDefault();
 
           const data = { ...state, id: uniqid() };
 

@@ -174,13 +174,13 @@ export const normalizePlaces = places =>
  * @return {Object}
  */
 export const normalizeReview = ({
-  profile_photo_url: photo,
+  profile_photo_url: avatar,
   author_name: author,
   text: comment,
   time,
 }) => ({
   date: new Date(time * 1000),
-  photo,
+  avatar,
   author,
   comment,
 });

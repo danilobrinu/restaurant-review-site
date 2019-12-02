@@ -1,5 +1,41 @@
+/**
+ * range
+ * @param {Number} start
+ * @param {Number} end
+ * @return {Number[]}
+ */
 export const range = (start, end) => Array.from({ length: end - start }, (_, k) => k + start);
 
+/**
+ * getDataURI
+ * @param {File} file
+ * @param {?Number} maxFileSize the max file size in mb by default is 2.
+ */
+export const getDataURI = async (file, maxFileSize = 2) =>
+  new Promise((resolve, reject) => {
+    const sizeInMb = (file.size / 1e6).toFixed(3);
+
+    if (sizeInMb < maxFileSize) {
+      const reader = new FileReader();
+
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject();
+      reader.onabort = () => reject();
+
+      reader.readAsDataURL(file);
+    } else {
+      window.alert(
+        `Your file has ${sizeInMb}mb. The max is ${maxFileSize}mb. Please try again with another file.`
+      );
+
+      reject();
+    }
+  });
+
+/**
+ * getCurrentPosition
+ * @return {Promise}
+ */
 export const getCurrentPosition = async () =>
   new Promise((resolve, reject) => {
     if ('geolocation' in window.navigator) {
@@ -19,6 +55,12 @@ export const getCurrentPosition = async () =>
     }
   });
 
+/**
+ * getNearbyPlaces
+ * @param {google.maps.places.PlacesService} service instance of PlacesService (https://developers.google.com/maps/documentation/javascript/reference/places-service)
+ * @param {google.maps.LatLng} location instance of LatLng (https://developers.google.com/maps/documentation/javascript/reference/coordinates#LatLng)
+ * @return {Promise}
+ */
 export const getNearbyPlaces = async (service, location) =>
   new Promise((resolve, reject) => {
     service.nearbySearch(
@@ -37,6 +79,12 @@ export const getNearbyPlaces = async (service, location) =>
     );
   });
 
+/**
+ * getPlaceDetails
+ * @param {google.maps.places.PlacesService} service instance of PlacesService (https://developers.google.com/maps/documentation/javascript/reference/places-service)
+ * @param {String} placeId
+ * @return {Promise}
+ */
 export const getPlaceDetails = async (service, placeId) =>
   new Promise((resolve, reject) => {
     if (Object.prototype.hasOwnProperty.call(window.places, placeId)) {
@@ -72,6 +120,11 @@ export const getPlaceDetails = async (service, placeId) =>
     }
   });
 
+/**
+ * normalizePlace
+ * @param {Object} RawPlaceObject
+ * @return {Object}
+ */
 export const normalizePlace = ({
   place_id = '',
   name = '',
@@ -103,6 +156,11 @@ export const normalizePlace = ({
   location,
 });
 
+/**
+ * normalizePlaces
+ * @param {Object[]} places
+ * @return {Object<string, Object>}
+ */
 export const normalizePlaces = places =>
   places.reduce((accumulator, place) => {
     accumulator[place.place_id] = normalizePlace(place);
@@ -110,6 +168,11 @@ export const normalizePlaces = places =>
     return accumulator;
   }, {});
 
+/**
+ * normalizeReview
+ * @param {Object} RawReviewObject
+ * @return {Object}
+ */
 export const normalizeReview = ({
   profile_photo_url: photo,
   author_name: author,
@@ -122,21 +185,53 @@ export const normalizeReview = ({
   comment,
 });
 
+/**
+ * normalizeReviews
+ * @param {Object[]} reviews
+ * @return {Object[]}
+ */
 export const normalizeReviews = reviews => reviews.map(review => normalizeReview(review));
 
+/**
+ * sortReviews
+ * @param {Object[]} reviews
+ * @return {Object[]}
+ */
 export const sortReviews = reviews =>
   reviews.sort((left, right) => right.date.getTime() - left.date.getTime());
 
+/**
+ * getFilteredPlaces
+ * @param {Object<string, Object>} places
+ * @param {String} query
+ * @param {Number} minRating
+ * @param {Number} maxRating
+ * @return {Object[]}
+ */
 export const getFilteredPlaces = (places, query, minRating, maxRating) =>
   Object.values(places).filter(
     ({ name, rating }) =>
       name.toLowerCase().includes(query.toLowerCase()) && rating >= minRating && rating <= maxRating
   );
 
+/**
+ * getSortedPlaces
+ * @param {Object[]} places
+ * @return {Object[]}
+ */
 export const getSortedPlaces = places => places.sort((left, right) => right.rating - left.rating);
 
 export const noop = () => {};
 
-export const gmapEncodeURI = uri => window.encodeURIComponent(uri).replace(/%20/g, '+');
+/**
+ * gmapEncodeURI
+ * @param {String} uri
+ * @return {String}
+ */
+export const gmapEncodeURI = uri => window.encodeURIComponent(uri);
 
+/**
+ * uniqid
+ * @return {String} return a random string
+ */
 export const uniqid = () => (new Date().getTime() * Math.random()).toString(32).replace('.', '');

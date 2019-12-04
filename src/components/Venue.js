@@ -6,7 +6,7 @@ function Map({ name }) {
   const query = gmapEncodeURI(name);
 
   return (
-    <div className="w-full h-64 bg-indigo-400 rounded">
+    <div className="w-full h-64 bg-gray-200 rounded">
       <iframe
         title="Map"
         width="100%"

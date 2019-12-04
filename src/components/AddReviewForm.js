@@ -43,6 +43,18 @@ function AddReviewForm({ handleSubmit, handleCancel }) {
     }
   }, initialState);
 
+  const handleEscape = React.useCallback(e => e.key === 'Escape' && handleCancel(e), [
+    handleCancel,
+  ]);
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleEscape);
+
+    return () => {
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [handleEscape]);
+
   return (
     <div className="bg-white rounded-lg overflow-hidden">
       <form

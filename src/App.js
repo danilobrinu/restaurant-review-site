@@ -15,11 +15,10 @@ import {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import Place from './components/Place';
-import Divider from './components/Divider';
-import Review from './components/Review';
-import Venue from './components/Venue';
 import Scrollable from './components/Scrollable';
+import Place from './components/Place';
+import PlaceDetails from './components/PlaceDetails';
+import PlaceDetailsPlaceholder from './components/PlaceDetailsPlaceholder';
 import AddRestaurantForm from './components/AddRestaurantForm';
 import AddReviewForm from './components/AddReviewForm';
 
@@ -28,12 +27,34 @@ import AddReviewForm from './components/AddReviewForm';
 window.places = {};
 window.markers = {};
 
+/**
+ * useQuery
+ * @param {{query: Promise}}
+ */
+function Query({ query, children }) {
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
+  const [data, setData] = React.useState(null);
+
+  const fetch = React.useCallback(() => {
+    query()
+      .then(result => setData(result))
+      .catch(result => setError(result))
+      .finally(() => setLoading(false));
+  }, [query]);
+
+  React.useEffect(() => fetch(), [fetch]);
+
+  return <>{children({ loading, error, data, refetch: fetch })}</>;
+}
+
 function App() {
   const [query, setQuery] = React.useState('');
   const [centerPosition, setCenterPosition] = React.useState(new window.google.maps.LatLng(0, 0));
   const [userPosition, setUserPosition] = React.useState(null);
   const [places, setPlaces] = React.useState({});
   const [place, setPlace] = React.useState(null);
+  const [placeId, setPlaceId] = React.useState(null);
   const [map, setMap] = React.useState(null);
   const [service, setService] = React.useState(null);
   const [minRating, setMinRating] = React.useState(0);
@@ -41,8 +62,13 @@ function App() {
   const [showAddReview, setShowAddReview] = React.useState(false);
   const [showAddRestaurant, setShowAddRestaurant] = React.useState(false);
   const [locationClicked, setLocationClicked] = React.useState({ lat: 0, lng: 0 });
-
+  const showPlaceDetails = !!placeId;
   const mapRef = React.useRef();
+
+  const getPlaceDetailsQuery = React.useCallback(() => getPlaceDetails(service, placeId), [
+    service,
+    placeId,
+  ]);
 
   React.useEffect(() => {
     const gMap = new window.google.maps.Map(mapRef.current, {
@@ -70,12 +96,6 @@ function App() {
       .then(position => setUserPosition(position))
       .catch(noop);
   }, []);
-
-  React.useEffect(() => {
-    if (!place) return;
-
-    setShowAddReview(false);
-  }, [place]);
 
   React.useEffect(() => {
     if (!map || !userPosition) return;
@@ -109,12 +129,12 @@ function App() {
   }, [service, centerPosition]);
 
   React.useEffect(() => {
-    if (!place) return;
+    if (!placeId) return;
 
-    if (!Object.prototype.hasOwnProperty.call(places, place.id)) {
+    if (!Object.prototype.hasOwnProperty.call(places, placeId)) {
       setPlace(null);
     }
-  }, [places, place]);
+  }, [places, placeId]);
 
   React.useEffect(() => {
     if (!map) return;
@@ -140,7 +160,7 @@ function App() {
         },
       });
 
-      marker.addListener('click', () => setPlace(place));
+      marker.addListener('click', () => setPlaceId(place.id));
 
       accumulator[place.id] = marker;
 
@@ -154,11 +174,7 @@ function App() {
     if (!service || !place) return;
 
     getPlaceDetails(service, place.id)
-      .then(result => {
-        window.places[place.id] = result;
-
-        setPlace(result);
-      })
+      .then(result => setPlace(result))
       .catch(noop);
   }, [service, place]);
 
@@ -291,7 +307,7 @@ function App() {
                             types={restaurant.types}
                             rating={restaurant.rating}
                             ratings={restaurant.ratings}
-                            onClick={() => setPlace(restaurant)}
+                            onClick={() => setPlaceId(restaurant.id)}
                           />
                         ))}
                       </>
@@ -315,113 +331,52 @@ function App() {
           </div>
         </div>
 
-        {place && (
-          <div className="absolute left-xl w-full max-w-xl h-screen bg-white z-10">
-            <Scrollable key={place.id}>
-              <header>
-                <nav className="flex items-center absolute top-0 right-0 p-6">
-                  <div
-                    className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md cursor-pointer select-none"
-                    role="button"
-                    tabIndex="0"
-                    onClick={() => setPlace(null)}
-                  >
-                    <Icon className="text-gray-900" icon="times" />
+        {showPlaceDetails && (
+          <Query query={getPlaceDetailsQuery}>
+            {({ loading, error, data, refetch }) => (
+              <>
+                {loading ? (
+                  <div className="absolute left-xl w-full max-w-xl h-screen bg-white z-10">
+                    <Scrollable key={placeId}>
+                      <PlaceDetailsPlaceholder />
+                    </Scrollable>
                   </div>
-                </nav>
-
-                <div className="mb-8">
-                  <img className="w-full h-64 object-cover" alt="cover" src={place.cover} />
-                </div>
-                <div className="px-6">
-                  <div className="m-0">
-                    <span className="text-xs uppercase font-bold text-gray-600">Restaurant</span>
-                  </div>
-                  <div className="mt-2">
-                    <div className="text-4xl font-bold leading-none text-gray-900 my-2">
-                      {place.name}
-                    </div>
-                    <div>
-                      <span className="text-sm">{place.ratings} ratings</span>
-                    </div>
-                  </div>
-                </div>
-              </header>
-
-              <main className="mb-6">
-                <Divider className="mx-6" />
-
-                <section>
-                  <div className="mx-6">
-                    <Venue
-                      name={place.name}
-                      address={place.address}
-                      phoneNumber={place.phoneNumber}
-                      types={place.types}
-                      gmap={place.gmap}
-                      website={place.website}
-                      isOpenNow={place.isOpen()}
-                    />
-                  </div>
-                </section>
-
-                <Divider className="mx-6" />
-
-                <section>
-                  <div className="mx-6">
-                    <header className="mb-6">
-                      <span className="text-2xl font-bold">Reviews</span>
-                    </header>
-
-                    {place.reviews.length > 0 ? (
+                ) : (
+                  <>
+                    {error.length > 0 ? null : (
                       <>
-                        {place.reviews.map((review, index) => (
-                          <Review
-                            key={`review-${index}`}
-                            avatar={review.avatar}
-                            author={review.author}
-                            date={review.date.toUTCString()}
-                            comment={review.comment}
-                          />
-                        ))}
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-2xl font-bold text-center">No Reviews, yet.</div>
-                        <div className="text-center">
-                          No reviews yet in this restaurant! Start adding a new review.
+                        <div className="absolute left-xl w-full max-w-xl h-screen bg-white z-10">
+                          <Scrollable key={placeId}>
+                            <PlaceDetails
+                              place={data}
+                              handleDissmis={() => setPlaceId(null)}
+                              handleClickAddReview={() => setShowAddReview(true)}
+                            />
+                          </Scrollable>
                         </div>
+
+                        {showAddReview && (
+                          <div className="absolute left-xl w-full max-w-xl h-screen z-20">
+                            <div className="absolute inset-0 bg-black opacity-50 -z-1" />
+
+                            <div className="p-6">
+                              <AddReviewForm
+                                handleSubmit={(_, review) => {
+                                  addNewReview(review, data);
+                                  refetch();
+                                }}
+                                handleCancel={() => setShowAddReview(false)}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </>
                     )}
-                  </div>
-                </section>
-
-                <section>
-                  <div className="mx-6">
-                    <button
-                      className="w-full py-4 text-sm font-semibold leading-none text-white uppercase tracking-wider bg-indigo-600 rounded-lg"
-                      onClick={() => setShowAddReview(true)}
-                    >
-                      Add Review
-                    </button>
-                  </div>
-                </section>
-              </main>
-            </Scrollable>
-          </div>
-        )}
-
-        {showAddReview && (
-          <div className="absolute left-xl w-full max-w-xl h-screen z-20">
-            <div className="absolute inset-0 bg-black opacity-50 -z-1" />
-
-            <div className="p-6">
-              <AddReviewForm
-                handleSubmit={(_, review) => addNewReview(review, place)}
-                handleCancel={() => setShowAddReview(false)}
-              />
-            </div>
-          </div>
+                  </>
+                )}
+              </>
+            )}
+          </Query>
         )}
 
         {showAddRestaurant && (

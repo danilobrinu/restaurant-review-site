@@ -29,7 +29,7 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
         </nav>
 
         <div className="mb-8">
-          <img className="w-full h-64 object-cover" alt="cover" src={place.cover} />
+          <img className="w-full h-64 object-cover bg-gray-200" alt="cover" src={place.cover} />
         </div>
         <div className="px-6">
           <div className="m-0">
@@ -37,7 +37,7 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
           </div>
           <div className="mt-2">
             <div className="text-4xl font-bold leading-none text-gray-900 my-2">{place.name}</div>
-            <div>
+            <div className="mt-2">
               <span className="text-sm">{place.ratings} ratings</span>
             </div>
           </div>

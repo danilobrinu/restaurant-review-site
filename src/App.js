@@ -16,6 +16,7 @@ import {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Scrollable from './components/Scrollable';
+import Query from './components/Query';
 import Place from './components/Place';
 import PlaceDetails from './components/PlaceDetails';
 import PlaceDetailsPlaceholder from './components/PlaceDetailsPlaceholder';
@@ -26,27 +27,6 @@ import AddReviewForm from './components/AddReviewForm';
 
 window.places = {};
 window.markers = {};
-
-/**
- * useQuery
- * @param {{query: Promise}}
- */
-function Query({ query, children }) {
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState('');
-  const [data, setData] = React.useState(null);
-
-  const fetch = React.useCallback(() => {
-    query()
-      .then(result => setData(result))
-      .catch(result => setError(result))
-      .finally(() => setLoading(false));
-  }, [query]);
-
-  React.useEffect(() => fetch(), [fetch]);
-
-  return <>{children({ loading, error, data, refetch: fetch })}</>;
-}
 
 function App() {
   const [query, setQuery] = React.useState('');

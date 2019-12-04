@@ -336,7 +336,7 @@ function App() {
             {({ loading, error, data, refetch }) => (
               <>
                 {loading ? (
-                  <div className="absolute left-xl w-full max-w-xl h-screen bg-white z-10">
+                  <div className="absolute left-xl w-full max-w-lg h-screen bg-white z-10">
                     <Scrollable key={placeId}>
                       <PlaceDetailsPlaceholder />
                     </Scrollable>
@@ -345,7 +345,7 @@ function App() {
                   <>
                     {error.length > 0 ? null : (
                       <>
-                        <div className="absolute left-xl w-full max-w-xl h-screen bg-white z-10">
+                        <div className="absolute left-xl w-full max-w-lg h-screen bg-white z-10">
                           <Scrollable key={placeId}>
                             <PlaceDetails
                               place={data}
@@ -356,7 +356,7 @@ function App() {
                         </div>
 
                         {showAddReview && (
-                          <div className="absolute left-xl w-full max-w-xl h-screen z-20">
+                          <div className="absolute left-xl w-full max-w-lg h-screen z-20">
                             <div className="absolute inset-0 bg-black opacity-50 -z-1" />
 
                             <div className="p-6">
@@ -380,7 +380,7 @@ function App() {
         )}
 
         {showAddRestaurant && (
-          <div className="absolute left-xl w-full max-w-xl h-screen z-20">
+          <div className="absolute left-xl w-full max-w-lg h-screen z-20">
             <div className="absolute inset-0 bg-black opacity-50 -z-1" />
             <div className="p-6">
               <AddRestaurantForm

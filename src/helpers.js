@@ -111,7 +111,9 @@ export const getPlaceDetails = async (service, placeId) =>
         },
         (place, status) => {
           if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-            resolve(normalizePlace(place));
+            window.places[placeId] = normalizePlace(place);
+
+            resolve(window.places[placeId]);
           } else {
             reject();
           }

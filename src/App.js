@@ -33,7 +33,6 @@ function App() {
   const [centerPosition, setCenterPosition] = React.useState(new window.google.maps.LatLng(0, 0));
   const [userPosition, setUserPosition] = React.useState(null);
   const [places, setPlaces] = React.useState({});
-  const [place, setPlace] = React.useState(null);
   const [placeId, setPlaceId] = React.useState(null);
   const [map, setMap] = React.useState(null);
   const [service, setService] = React.useState(null);
@@ -112,7 +111,7 @@ function App() {
     if (!placeId) return;
 
     if (!Object.prototype.hasOwnProperty.call(places, placeId)) {
-      setPlace(null);
+      setPlaceId(null);
     }
   }, [places, placeId]);
 
@@ -150,14 +149,6 @@ function App() {
     window.markers = markers;
   }, [map, places]);
 
-  React.useEffect(() => {
-    if (!service || !place) return;
-
-    getPlaceDetails(service, place.id)
-      .then(result => setPlace(result))
-      .catch(noop);
-  }, [service, place]);
-
   const filteredPlaces = React.useMemo(
     () => getSortedPlaces(getFilteredPlaces(places, query, minRating, maxRating)),
     [places, query, minRating, maxRating]
@@ -183,7 +174,6 @@ function App() {
     };
     window.markers[place.id].setLabel(rating.toString());
 
-    setPlace(window.places[place.id]);
     setPlaces(state => ({ ...state, [place.id]: window.places[place.id] }));
     setShowAddReview(false);
   };

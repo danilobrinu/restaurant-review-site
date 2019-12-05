@@ -237,3 +237,9 @@ export const gmapEncodeURI = uri => window.encodeURIComponent(uri);
  * @return {String} return a random string
  */
 export const uniqid = () => (new Date().getTime() * Math.random()).toString(32).replace('.', '');
+
+/**
+ * cleanMarkers
+ */
+export const cleanMarkers = () =>
+  Object.values(window.markers).forEach(marker => marker.setMap(null));

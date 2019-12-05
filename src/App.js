@@ -9,6 +9,7 @@ import {
   getPlaceDetails,
   getFilteredPlaces,
   getSortedPlaces,
+  cleanMarkers,
   noop,
   range,
 } from './helpers';
@@ -118,33 +119,35 @@ function App() {
   React.useEffect(() => {
     if (!map) return;
 
-    Object.values(window.markers).forEach(marker => marker.setMap(null));
+    cleanMarkers();
 
-    const markers = Object.values(places).reduce((accumulator, place) => {
-      const { location: position, rating } = place;
-      const marker = new window.google.maps.Marker({
-        map,
-        position,
-        icon: {
-          url: 'images/marker.png',
-          scaledSize: { width: 32, height: 48 },
-          labelOrigin: { x: 16, y: 18 },
-        },
-        label: {
-          fontFamily: '"Montserrat", sans-serif',
-          fontWeight: '600',
-          fontSize: '12px',
-          color: '#fff',
-          text: rating > 0 ? rating.toString() : 'N',
-        },
-      });
+    const markers = Object.values(places).reduce(
+      (accumulator, { location: position, id, rating }) => {
+        const marker = new window.google.maps.Marker({
+          map,
+          position,
+          icon: {
+            url: 'images/marker.png',
+            scaledSize: { width: 32, height: 48 },
+            labelOrigin: { x: 16, y: 18 },
+          },
+          label: {
+            fontFamily: '"Montserrat", sans-serif',
+            fontWeight: '600',
+            fontSize: '12px',
+            color: '#fff',
+            text: rating > 0 ? rating.toString() : 'N',
+          },
+        });
 
-      marker.addListener('click', () => setPlaceId(place.id));
+        marker.addListener('click', () => setPlaceId(id));
 
-      accumulator[place.id] = marker;
+        accumulator[id] = marker;
 
-      return accumulator;
-    }, {});
+        return accumulator;
+      },
+      {}
+    );
 
     window.markers = markers;
   }, [map, places]);
@@ -213,6 +216,7 @@ function App() {
                               onKeyDown={e => {
                                 if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
                                   e.preventDefault();
+
                                   setQuery('');
                                 }
                               }}

@@ -40,7 +40,7 @@ function Place({ name = '', cover = '', rating = 0, ratings = 0, types = [], ...
           <RatingBadge className="mr-2">{rating || 'New'}</RatingBadge>
           <span className="inline-block text-lg font-bold leading-none text-gray-900">{name}</span>
         </div>
-        <PlaceTags />
+        <PlaceTags tags={types} />
         <div className="text-xs font-bold text-gray-600 mt-auto">
           {ratings > 0 ? `${ratings} ratings` : 'Without ratings'}
         </div>

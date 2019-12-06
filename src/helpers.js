@@ -71,7 +71,7 @@ export const getNearbyPlaces = async (service, location) =>
             resolve(normalizePlaces(places));
             break;
           default:
-            resolve([]);
+            resolve({});
             break;
         }
       },

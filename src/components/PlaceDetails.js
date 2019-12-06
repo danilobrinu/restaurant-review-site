@@ -83,9 +83,11 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold text-center">No Reviews, yet.</div>
-                <div className="text-center">
-                  No reviews yet in this restaurant! Start adding a new review.
+                <div className="mb-4">
+                  <div className="text-2xl font-bold text-center">No Reviews, yet.</div>
+                  <div className="text-center">
+                    No reviews yet in this restaurant! Start adding a new review.
+                  </div>
                 </div>
               </>
             )}

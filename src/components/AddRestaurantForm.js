@@ -13,7 +13,7 @@ const initialState = {
   // static values
   gmap: null,
   isOpen: () => true,
-  ratin: 0,
+  rating: 0,
   ratings: 0,
   reviews: [],
   types: ['restaurant'],

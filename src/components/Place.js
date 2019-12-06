@@ -2,7 +2,8 @@ import React from 'react';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import Tag from './Tag';
+import RatingBadge from './RatingBadge';
+import RestaurantTypeBadge from './RestaurantTypeBadge';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -10,9 +11,9 @@ function PlaceTags({ tags }) {
   return (
     <div>
       {tags.map(tag => (
-        <Tag key={`place-tag-${tag}`} className="mr-2" color="purple">
+        <RestaurantTypeBadge key={`place-tag-${tag}`} className="mr-2">
           {tag}
-        </Tag>
+        </RestaurantTypeBadge>
       ))}
     </div>
   );
@@ -36,12 +37,10 @@ function Place({ name = '', cover = '', rating = 0, ratings = 0, types = [], ...
       </div>
       <div className="flex flex-col items-start flex-1 pl-4">
         <div className="flex items-start mb-2">
-          <Tag className="mr-2" color="indigo">
-            {rating || 'New'}
-          </Tag>
+          <RatingBadge className="mr-2">{rating || 'New'}</RatingBadge>
           <span className="inline-block text-lg font-bold leading-none text-gray-900">{name}</span>
         </div>
-        <PlaceTags tags={types} />
+        <PlaceTags />
         <div className="text-xs font-bold text-gray-600 mt-auto">
           {ratings > 0 ? `${ratings} ratings` : 'Without ratings'}
         </div>

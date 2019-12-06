@@ -1,0 +1,17 @@
+import React from 'react';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+import Badge from './Badge';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function RatingBadge({ className, children, ...props }) {
+  return (
+    <Badge className={`bg-blue-200 text-blue-800 ${className}`} {...props}>
+      {children}
+    </Badge>
+  );
+}
+
+export default RatingBadge;

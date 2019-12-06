@@ -103,6 +103,7 @@ function AddRestaurantForm({ location, handleSubmit, handleCancel }) {
                       .then(result => dispatch({ type: 'SET_COVER', payload: result }))
                       .catch(noop);
                   }}
+                  required
                 />
               </div>
             )}

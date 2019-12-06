@@ -29,7 +29,11 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
         </nav>
 
         <div className="mb-8">
-          <img className="w-full h-64 object-cover bg-gray-200" alt="cover" src={place.cover} />
+          {place.cover ? (
+            <img className="w-full h-64 object-cover bg-gray-200" alt="cover" src={place.cover} />
+          ) : (
+            <div className="w-full h-64 object-cover bg-gray-200" />
+          )}
         </div>
         <div className="px-6">
           <div className="m-0">

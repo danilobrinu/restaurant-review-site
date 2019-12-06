@@ -84,18 +84,19 @@ function AddRestaurantForm({ location, handleSubmit, handleCancel }) {
         }}
       >
         <div className="relative bg-indigo-400 h-64">
-          <label className="absolute inset-0 cursor-pointer">
+          <label className="absolute inset-0">
             {state.cover ? (
               <img className="w-full h-full object-fit" alt={state.name} src={state.cover} />
             ) : (
-              <div className="flex flex-col items-center justify-center w-full h-full">
+              <div className="flex flex-col items-center justify-center relative w-full h-full">
                 <Icon icon="image" color="#fff" size="8x" />
                 <div className="inline-block px-4 py-1 text-xs font-semibold text-indigo-800 bg-indigo-200 rounded-lg">
                   Add a preview image
                 </div>
                 <input
-                  className="hidden"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   type="file"
+                  name="cover"
                   accept="image/png, image/jpeg"
                   placeholder="Cover"
                   onChange={e => {

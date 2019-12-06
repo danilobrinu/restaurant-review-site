@@ -1,0 +1,17 @@
+import React from 'react';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+import Badge from './Badge';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function RestaurantTypeBadge({ className, children, ...props }) {
+  return (
+    <Badge className={`bg-purple-200 text-purple-800 ${className}`} {...props}>
+      {children}
+    </Badge>
+  );
+}
+
+export default RestaurantTypeBadge;

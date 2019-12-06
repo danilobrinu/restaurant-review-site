@@ -166,7 +166,11 @@ function App() {
 
   const addNewReview = (data, place) => {
     const reviews = [data, ...place.reviews];
-    const rating = +((place.rating + data.rating) / 2).toFixed(1);
+    const rating = place.rating
+      ? // Incremental Average:
+        // Formula:  -> ( ((Total Count - 1) * Previous Average) + New Number) / Total count
+        ((place.ratings * place.rating + data.rating) / (place.ratings + 1)).toFixed(1)
+      : data.rating;
     const ratings = place.ratings + 1;
 
     window.places[place.id] = {

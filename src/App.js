@@ -136,7 +136,7 @@ function App() {
             fontWeight: '600',
             fontSize: '12px',
             color: '#fff',
-            text: rating > 0 ? rating.toString() : 'N',
+            text: rating > 0 ? rating.toFixed(1) : 'N',
           },
         });
 
@@ -168,8 +168,8 @@ function App() {
     const reviews = [data, ...place.reviews];
     const rating = place.rating
       ? // Incremental Average:
-        // Formula:  -> ( ((Total Count - 1) * Previous Average) + New Number) / Total count
-        ((place.ratings * place.rating + data.rating) / (place.ratings + 1)).toFixed(1)
+        // Formula: ( ( ( Total Count - 1 ) * Previous Rating (AVG) ) + New Rating) / Total Count
+        (place.ratings * place.rating + data.rating) / (place.ratings + 1)
       : data.rating;
     const ratings = place.ratings + 1;
 

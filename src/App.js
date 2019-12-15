@@ -10,8 +10,9 @@ import {
   getFilteredPlaces,
   getSortedPlaces,
   cleanMarkers,
-  noop,
   range,
+  debounce,
+  noop,
 } from './helpers';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +66,10 @@ function App() {
       setShowAddRestaurant(true);
     });
 
-    gMap.addListener('dragend', () => setCenterPosition(gMap.getCenter()));
+    gMap.addListener(
+      'bounds_changed',
+      debounce(() => setCenterPosition(gMap.getCenter()))
+    );
 
     setMap(gMap);
     setService(gService);

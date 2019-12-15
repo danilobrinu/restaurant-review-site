@@ -185,6 +185,30 @@ function App() {
     setShowAddReview(false);
   };
 
+  const handleKeyboardNavigationPlaces = React.useCallback(e => {
+    e.preventDefault();
+
+    const next = e.target.nextSibling;
+    const previous = e.target.previousSibling;
+
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        if (previous) {
+          previous.focus();
+        }
+        break;
+      case 'ArrowDown':
+      case 'ArrowRight':
+        if (next) {
+          next.focus();
+        }
+        break;
+      default:
+        break;
+    }
+  }, []);
+
   return (
     <div className="absolute inset-0">
       <div className="flex relative w-full h-full overflow-hidden">
@@ -273,7 +297,14 @@ function App() {
             <div className="flex-1 relative max-h-full">
               <div className="absolute inset-0">
                 <div className="relative w-full h-full max-h-full overflow-x-hidden overflow-y-scroll">
-                  <main className="p-6">
+                  <main
+                    className="p-6"
+                    onKeyDown={e => {
+                      e.persist();
+
+                      handleKeyboardNavigationPlaces(e);
+                    }}
+                  >
                     {filteredPlaces.length > 0 ? (
                       <>
                         {filteredPlaces.map(restaurant => (
@@ -285,7 +316,11 @@ function App() {
                             types={restaurant.types}
                             rating={restaurant.rating}
                             ratings={restaurant.ratings}
-                            onClick={() => setPlaceId(restaurant.id)}
+                            handleClick={e => {
+                              e.preventDefault();
+
+                              setPlaceId(restaurant.id);
+                            }}
                           />
                         ))}
                       </>
@@ -323,7 +358,11 @@ function App() {
                   <>
                     {error.length > 0 ? null : (
                       <>
-                        <div className="absolute left-xl w-full max-w-lg h-screen bg-white z-10">
+                        <div
+                          role="dialog"
+                          tabIndex="0"
+                          className="absolute left-xl w-full max-w-lg h-screen bg-white z-10"
+                        >
                           <Scrollable key={placeId}>
                             <PlaceDetails
                               place={data}
@@ -339,7 +378,9 @@ function App() {
 
                             <div className="p-6">
                               <AddReviewForm
-                                handleSubmit={(_, review) => {
+                                handleSubmit={(e, review) => {
+                                  e.preventDefault();
+
                                   addNewReview(review, data);
                                   refetch();
                                 }}
@@ -362,7 +403,11 @@ function App() {
             <div className="absolute inset-0 bg-black opacity-50 -z-1" />
             <div className="p-6">
               <AddRestaurantForm
-                handleSubmit={(_, restaurant) => addNewRestaurant(restaurant)}
+                handleSubmit={(e, restaurant) => {
+                  e.preventDefault();
+
+                  addNewRestaurant(restaurant);
+                }}
                 handleCancel={() => setShowAddRestaurant(false)}
                 location={locationClicked}
               />

@@ -19,11 +19,32 @@ function PlaceTags({ tags }) {
   );
 }
 
-function Place({ name = '', cover = '', rating = 0, ratings = 0, types = [], ...props }) {
+function Place({
+  name = '',
+  cover = '',
+  rating = 0,
+  ratings = 0,
+  types = [],
+  handleClick = () => {},
+  ...props
+}) {
   return (
     <div
       role="button"
+      tabIndex="0"
       className="flex p-3 -mx-3 my-2 rounded hover:shadow-md focus:shadow-md"
+      onKeyDown={e => {
+        e.persist();
+
+        if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
+          handleClick(e);
+        }
+      }}
+      onClick={e => {
+        e.persist();
+
+        handleClick(e);
+      }}
       {...props}
     >
       <div className="w-32 min-w-32 h-32">

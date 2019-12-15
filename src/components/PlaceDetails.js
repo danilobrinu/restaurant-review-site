@@ -18,6 +18,15 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
             className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md cursor-pointer select-none"
             role="button"
             tabIndex="0"
+            onKeyDown={e => {
+              e.persist();
+
+              if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
+                e.preventDefault();
+
+                handleDissmis(e);
+              }
+            }}
             onClick={e => {
               e.persist();
 

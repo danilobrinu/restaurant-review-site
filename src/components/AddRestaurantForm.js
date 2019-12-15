@@ -76,7 +76,6 @@ function AddRestaurantForm({ location, handleSubmit, handleCancel }) {
       <form
         onSubmit={e => {
           e.persist();
-          e.preventDefault();
 
           const data = { ...state, id: uniqid() };
 

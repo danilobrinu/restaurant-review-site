@@ -60,7 +60,6 @@ function AddReviewForm({ handleSubmit, handleCancel }) {
       <form
         onSubmit={e => {
           e.persist();
-          e.preventDefault();
 
           const data = { ...state, avatar: getRandomAvatar(avatars), date: new Date() };
 
@@ -200,7 +199,6 @@ function AddReviewForm({ handleSubmit, handleCancel }) {
                 e.persist();
 
                 dispatch({ type: 'RESET' });
-
                 handleCancel(e);
               }}
             >

@@ -35,7 +35,7 @@ function InfoItem({ icon, action, children }) {
         <Icon icon={icon} />
       </td>
       <td className="w-6/12 py-2 align-top">{children}</td>
-      <td className="py-2 text-right align-top">{action}</td>
+      <td className="py-2 text-right align-top">{action || <div>&nbsp;</div>}</td>
     </tr>
   );
 }

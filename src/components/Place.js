@@ -58,7 +58,7 @@ function Place({
       </div>
       <div className="flex flex-col items-start flex-1 pl-4">
         <div className="flex items-start mb-2">
-          <RatingBadge className="mr-2">{rating.toFixed(1) || 'New'}</RatingBadge>
+          <RatingBadge className="mr-2">{rating > 0 ? rating.toFixed(1) || 'New'}</RatingBadge>
           <span className="inline-block text-lg font-bold leading-none text-gray-900">{name}</span>
         </div>
         <PlaceTags tags={types} />

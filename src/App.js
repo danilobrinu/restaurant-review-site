@@ -370,7 +370,7 @@ function App() {
                           <Scrollable key={placeId}>
                             <PlaceDetails
                               place={data}
-                              handleDissmis={e => {
+                              handleClose={e => {
                                 e.preventDefault();
 
                                 setPlaceId(null);
@@ -392,7 +392,11 @@ function App() {
                                   addNewReview(review, data);
                                   refetch();
                                 }}
-                                handleCancel={() => setShowAddReview(false)}
+                                handleCancel={e => {
+                                  e.preventDefault();
+
+                                  setShowAddReview(false);
+                                }}
                               />
                             </div>
                           </div>

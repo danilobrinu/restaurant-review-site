@@ -9,7 +9,7 @@ import Venue from './Venue';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddReview = () => {} }) {
+function PlaceDetails({ place = null, handleClose = () => {}, handleClickAddReview = () => {} }) {
   return (
     <div className="w-full">
       <header>
@@ -22,13 +22,13 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
               e.persist();
 
               if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
-                handleDissmis(e);
+                handleClose(e);
               }
             }}
             onClick={e => {
               e.persist();
 
-              handleDissmis(e);
+              handleClose(e);
             }}
           >
             <Icon className="text-gray-900" icon="times" />

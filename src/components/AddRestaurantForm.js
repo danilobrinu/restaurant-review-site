@@ -207,6 +207,14 @@ function AddRestaurantForm({ location, handleSubmit, handleCancel }) {
             <button
               className="px-4 py-2 text-sm font-semibold text-indigo-600 rounded"
               type="button"
+              onKeyDown={e => {
+                e.persist();
+
+                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
+                  dispatch({ type: 'RESET' });
+                  handleCancel(e);
+                }
+              }}
               onClick={e => {
                 e.persist();
 

@@ -22,7 +22,7 @@ function Map({ name }) {
 
 function Info({ children }) {
   return (
-    <table className="w-full mt-6">
+    <table className="table-fixed w-full mt-6">
       <tbody>{children}</tbody>
     </table>
   );
@@ -35,7 +35,7 @@ function InfoItem({ icon, action, children }) {
         <Icon icon={icon} />
       </td>
       <td className="w-6/12 py-2 align-top">{children}</td>
-      <td className="py-2 text-right align-top">{action || <div>&nbsp;</div>}</td>
+      <td className="w-6/12 py-2 text-right align-top">{action || <>&nbsp;</>}</td>
     </tr>
   );
 }

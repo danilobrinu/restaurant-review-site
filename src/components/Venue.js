@@ -86,7 +86,7 @@ function Venue({ name, address, gmap, phoneNumber, website, isOpenNow, types }) 
           <InfoItem icon="globe">
             <a
               rel="noopener noreferrer"
-              className="text-sm text-indigo-600 no-underline hover:underline"
+              className="text-sm text-indigo-600 break-all no-underline hover:underline"
               href={website}
               target="_blank"
             >

@@ -243,3 +243,15 @@ export const uniqid = () => (new Date().getTime() * Math.random()).toString(32).
  */
 export const cleanMarkers = () =>
   Object.values(window.markers).forEach(marker => marker.setMap(null));
+
+export const debounce = (func, delay = 150) => {
+  let timer;
+
+  const debounced = (...args) => {
+    window.clearTimeout(timer);
+
+    timer = window.setTimeout(() => func(...args), delay);
+  };
+
+  return debounced;
+};

@@ -52,27 +52,27 @@ function App() {
   ]);
 
   React.useEffect(() => {
-    const gMap = new window.google.maps.Map(mapRef.current, {
+    const gmap = new window.google.maps.Map(mapRef.current, {
       center: new window.google.maps.LatLng(0, 0),
       zoom: 16,
       fullscreenControl: false,
       mapTypeControl: false,
       gestureHandling: 'cooperative',
     });
-    const gService = new window.google.maps.places.PlacesService(gMap);
+    const gservice = new window.google.maps.places.PlacesService(gmap);
 
-    gMap.addListener('click', e => {
+    gmap.addListener('click', e => {
       setLocationClicked(e.latLng.toJSON());
       setShowAddRestaurant(true);
     });
 
-    gMap.addListener(
+    gmap.addListener(
       'bounds_changed',
-      debounce(() => setCenterPosition(gMap.getCenter()))
+      debounce(() => setCenterPosition(gmap.getCenter()))
     );
 
-    setMap(gMap);
-    setService(gService);
+    setMap(gmap);
+    setService(gservice);
   }, []);
 
   React.useEffect(() => {
@@ -172,7 +172,7 @@ function App() {
     const reviews = [data, ...place.reviews];
     const rating = place.rating
       ? // Incremental Average:
-        // Formula: ( ( ( Total Count - 1 ) * Previous Rating (AVG) ) + New Rating) / Total Count
+        // Formula: ( ( ( Total Count - 1 ) * Previous Rating (AVG) ) + New Rating ) / Total Count
         (place.ratings * place.rating + data.rating) / (place.ratings + 1)
       : data.rating;
     const ratings = place.ratings + 1;

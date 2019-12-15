@@ -370,7 +370,11 @@ function App() {
                           <Scrollable key={placeId}>
                             <PlaceDetails
                               place={data}
-                              handleDissmis={() => setPlaceId(null)}
+                              handleDissmis={e => {
+                                e.preventDefault();
+
+                                setPlaceId(null);
+                              }}
                               handleClickAddReview={() => setShowAddReview(true)}
                             />
                           </Scrollable>

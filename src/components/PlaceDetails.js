@@ -22,8 +22,6 @@ function PlaceDetails({ place = null, handleDissmis = () => {}, handleClickAddRe
               e.persist();
 
               if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
-                e.preventDefault();
-
                 handleDissmis(e);
               }
             }}

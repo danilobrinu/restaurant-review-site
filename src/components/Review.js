@@ -5,7 +5,7 @@ function Review({ avatar, author, date, comment }) {
     <div className="mb-8">
       <div className="flex items-center">
         <div className="w-12 h-12">
-          <img className="w-12 h-12 object-fit rounded-full" alt={author} src={avatar} />
+          <img className="w-12 h-12 object-fit" alt={author} src={avatar} />
         </div>
         <div className="ml-2">
           <div className="text-sm leading-snug font-bold text-gray-900">{author}</div>

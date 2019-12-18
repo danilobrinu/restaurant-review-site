@@ -150,7 +150,7 @@ export const normalizePlace = ({
   gmap: url,
   address: formatted_address || vicinity,
   ratings: user_ratings_total,
-  reviews: sortReviews(normalizeReviews(reviews)),
+  reviews: getSortedReviews(normalizeReviews(reviews)),
   rating,
   isOpen,
   website,
@@ -195,12 +195,12 @@ export const normalizeReview = ({
 export const normalizeReviews = reviews => reviews.map(review => normalizeReview(review));
 
 /**
- * sortReviews
+ * getSortedReviews
  * @param {Object[]} reviews
  * @return {Object[]}
  */
-export const sortReviews = reviews =>
-  reviews.sort((left, right) => right.date.getTime() - left.date.getTime());
+export const getSortedReviews = reviews =>
+  [...reviews].sort((left, right) => right.date.getTime() - left.date.getTime());
 
 /**
  * getFilteredPlaces
@@ -221,7 +221,8 @@ export const getFilteredPlaces = (places, query, minRating, maxRating) =>
  * @param {Object[]} places
  * @return {Object[]}
  */
-export const getSortedPlaces = places => places.sort((left, right) => right.rating - left.rating);
+export const getSortedPlaces = places =>
+  [...places].sort((left, right) => right.rating - left.rating);
 
 export const noop = () => {};
 

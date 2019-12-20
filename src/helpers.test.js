@@ -81,26 +81,26 @@ describe('uniqid', () => {
 });
 
 describe('getCurrentPosition', () => {
-  test('Get the current position of the user', () => {
-    return expect(getCurrentPosition()).resolves.toEqual({ lat: 0, lng: 0 });
+  test('Get the current position of the user', async () => {
+    await expect(getCurrentPosition()).resolves.toEqual({ lat: 0, lng: 0 });
   });
 });
 
 describe('getDataURI', () => {
-  test('Generate a data URI from a file', () => {
+  test('Generate a data URI from a file', async () => {
     const file = new File(['Hello World!'], 'foo.txt', {
       type: 'text/plain;charset=utf-8',
     });
 
     // bug: charset is undefined on jsdom -> https://github.com/jsdom/jsdom/issues/2269
-    return expect(getDataURI(file)).resolves.toEqual(
+    await expect(getDataURI(file)).resolves.toEqual(
       'data:text/plain;charset=undefined,Hello%20World!'
     );
   });
 });
 
 describe('getNearbyPlaces', () => {
-  test('getNearbyPlaces()', () => {
+  test('Get nearby places successfully', async () => {
     const service = {
       nearbySearch: jest.fn().mockImplementation((_, success) =>
         success(
@@ -128,7 +128,7 @@ describe('getNearbyPlaces', () => {
     };
     const location = { lat: 0, lng: 0 };
 
-    return expect(getNearbyPlaces(service, location)).resolves.toEqual({
+    await expect(getNearbyPlaces(service, location)).resolves.toEqual({
       abcde: {
         address: 'vicinity',
         cover: 'http://avatar.com/123456',
@@ -146,10 +146,23 @@ describe('getNearbyPlaces', () => {
       },
     });
   });
+
+  test('Get nearby places unsuccessfully', async () => {
+    const service = {
+      nearbySearch: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success([], window.google.maps.places.PlacesServiceStatus.OK)
+        ),
+    };
+    const location = { lat: 0, lng: 0 };
+
+    await expect(getNearbyPlaces(service, location)).resolves.toEqual({});
+  });
 });
 
 describe('getPlaceDetails', () => {
-  test('getPlaceDetails()', () => {
+  test('Get place details successfully', async () => {
     window.places = {};
 
     const service = {
@@ -177,7 +190,7 @@ describe('getPlaceDetails', () => {
     };
     const placeId = '123456789';
 
-    return expect(getPlaceDetails(service, placeId)).resolves.toEqual({
+    await expect(getPlaceDetails(service, placeId)).resolves.toEqual({
       address: 'vicinity',
       cover: 'http://avatar.com/123456',
       gmap: 'http://google.maps/123456789',
@@ -192,6 +205,71 @@ describe('getPlaceDetails', () => {
       types: ['restaurant', 'point of interest'],
       website: 'http://google.com',
     });
+  });
+
+  test('Get place details unsuccessfully', async () => {
+    window.places = {};
+
+    const placeId = '123456789';
+    const service_not_found_result = {
+      getDetails: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success(null, window.google.maps.places.PlacesServiceStatus.NOT_FOUND)
+        ),
+    };
+
+    await expect(getPlaceDetails(service_not_found_result, placeId)).rejects.toEqual();
+
+    const service_invalid_request_result = {
+      getDetails: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success(null, window.google.maps.places.PlacesServiceStatus.INVALID_REQUEST)
+        ),
+    };
+
+    await expect(getPlaceDetails(service_invalid_request_result, placeId)).rejects.toEqual();
+
+    const service_over_query_limit_result = {
+      getDetails: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success(null, window.google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT)
+        ),
+    };
+
+    await expect(getPlaceDetails(service_over_query_limit_result, placeId)).rejects.toEqual();
+
+    const service_request_denied_result = {
+      getDetails: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success(null, window.google.maps.places.PlacesServiceStatus.REQUEST_DENIED)
+        ),
+    };
+
+    await expect(getPlaceDetails(service_request_denied_result, placeId)).rejects.toEqual();
+
+    const service_unknow_error_result = {
+      getDetails: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success(null, window.google.maps.places.PlacesServiceStatus.service_unknow_error_result)
+        ),
+    };
+
+    await expect(getPlaceDetails(service_unknow_error_result, placeId)).rejects.toEqual();
+
+    const service_zero_results_result = {
+      getDetails: jest
+        .fn()
+        .mockImplementation((_, success) =>
+          success(null, window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS)
+        ),
+    };
+
+    await expect(getPlaceDetails(service_zero_results_result, placeId)).rejects.toEqual();
   });
 });
 

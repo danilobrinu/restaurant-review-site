@@ -22,21 +22,43 @@ expect.extend({
 });
 
 describe('range', () => {
-  test('range(1, 6) -> [1, 2, 3, 4, 5]', () => {
+  test('Generate an array of numbers with valid parameters (Number or String)', () => {
     expect(range(1, 6)).toEqual(expect.arrayContaining([1, 2, 3, 4, 5]));
+    expect(range('1', '6')).toEqual(expect.arrayContaining([1, 2, 3, 4, 5]));
+    expect(range(-5, 0)).toEqual([-5, -4, -3, -2, -1]);
+    expect(range('-5', '0')).toEqual([-5, -4, -3, -2, -1]);
+  });
+
+  test('Generate an array with wrong parameters', () => {
+    expect(range()).toEqual([]);
+    expect(range(2)).toEqual([]);
+    expect(range(1.5)).toEqual([]);
+    expect(range('a')).toEqual([]);
+    expect(range(undefined, 2)).toEqual([]);
+    expect(range(undefined, 1.5)).toEqual([]);
   });
 });
 
 describe('gmapEncodeURI', () => {
-  test('gmapEncodeURI("The Bottle") -> "The%20Bottle"', () => {
+  test('Encode URI for Google Maps Embbed API', () => {
     const placeName = 'The Bottle';
 
     expect(gmapEncodeURI(placeName)).toBe('The%20Bottle');
   });
+
+  test('Encode URI for Google Maps Embbed API without parameters', () => {
+    expect(gmapEncodeURI()).toBe('');
+  });
+
+  test('Encode URI for Google Maps Embbed API with wrong parameters', () => {
+    expect(gmapEncodeURI('')).toBe('');
+    expect(gmapEncodeURI(null)).toBe('');
+    expect(gmapEncodeURI(undefined)).toBe('');
+  });
 });
 
 describe('clearMarkers', () => {
-  test('clearMarkers()', () => {
+  test('Cleanup all Google Markers in the map', () => {
     const setMap = jest.fn();
 
     window.markers = { 0: { setMap }, 1: { setMap }, 2: { setMap } };
@@ -49,7 +71,7 @@ describe('clearMarkers', () => {
 });
 
 describe('uniqid', () => {
-  test('uniqid()', () => {
+  test('Generate a uniqid using the same timestamp', () => {
     const spy = jest.spyOn(Date.prototype, 'getTime').mockImplementation(() => 1234567890);
 
     expect(uniqid()).not.toBe(uniqid());
@@ -59,17 +81,18 @@ describe('uniqid', () => {
 });
 
 describe('getCurrentPosition', () => {
-  test('getCurrentPosition()', () => {
+  test('Get the current position of the user', () => {
     return expect(getCurrentPosition()).resolves.toEqual({ lat: 0, lng: 0 });
   });
 });
 
 describe('getDataURI', () => {
-  test('getDataURI(file)', () => {
+  test('Generate a data URI from a file', () => {
     const file = new File(['Hello World!'], 'foo.txt', {
-      type: 'text/plain',
+      type: 'text/plain;charset=utf-8',
     });
 
+    // bug: charset is undefined on jsdom -> https://github.com/jsdom/jsdom/issues/2269
     return expect(getDataURI(file)).resolves.toEqual(
       'data:text/plain;charset=undefined,Hello%20World!'
     );

@@ -4,7 +4,11 @@
  * @param {Number} end
  * @return {Number[]}
  */
-export const range = (start, end) => Array.from({ length: end - start }, (_, k) => k + start);
+export const range = (start, end) =>
+  Array.from(
+    { length: Number.parseInt(end, 10) - Number.parseInt(start) },
+    (_, k) => k + Number.parseInt(start)
+  );
 
 /**
  * getDataURI
@@ -231,7 +235,7 @@ export const noop = () => {};
  * @param {String} uri
  * @return {String}
  */
-export const gmapEncodeURI = uri => window.encodeURIComponent(uri);
+export const gmapEncodeURI = uri => (uri ? window.encodeURIComponent(uri) : '');
 
 /**
  * uniqid

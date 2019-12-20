@@ -68,7 +68,7 @@ export const getCurrentPosition = async () =>
 export const getNearbyPlaces = async (service, location) =>
   new Promise((resolve, reject) => {
     service.nearbySearch(
-      { location, radius: 500, type: ['restaurant'], fields: ['formatted_address'] },
+      { location, radius: 500, type: ['restaurant'] },
       (places, status) => {
         switch (status) {
           case window.google.maps.places.PlacesServiceStatus.OK:

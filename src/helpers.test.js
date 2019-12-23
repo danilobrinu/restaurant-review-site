@@ -6,9 +6,7 @@ import {
   getSortedPlaces,
   getNearbyPlaces,
   getPlaceDetails,
-  normalizeReview,
   normalizeReviews,
-  normalizePlace,
   normalizePlaces,
   gmapEncodeURI,
   cleanMarkers,
@@ -211,7 +209,7 @@ describe('getPlaceDetails', () => {
     window.places = {};
 
     const placeId = '123456789';
-    const service_not_found_result = {
+    const notFoundService = {
       getDetails: jest
         .fn()
         .mockImplementation((_, success) =>
@@ -219,9 +217,9 @@ describe('getPlaceDetails', () => {
         ),
     };
 
-    await expect(getPlaceDetails(service_not_found_result, placeId)).rejects.toEqual();
+    await expect(getPlaceDetails(notFoundService, placeId)).rejects.toEqual();
 
-    const service_invalid_request_result = {
+    const invalidRequestService = {
       getDetails: jest
         .fn()
         .mockImplementation((_, success) =>
@@ -229,9 +227,9 @@ describe('getPlaceDetails', () => {
         ),
     };
 
-    await expect(getPlaceDetails(service_invalid_request_result, placeId)).rejects.toEqual();
+    await expect(getPlaceDetails(invalidRequestService, placeId)).rejects.toEqual();
 
-    const service_over_query_limit_result = {
+    const overQueryLimitService = {
       getDetails: jest
         .fn()
         .mockImplementation((_, success) =>
@@ -239,9 +237,9 @@ describe('getPlaceDetails', () => {
         ),
     };
 
-    await expect(getPlaceDetails(service_over_query_limit_result, placeId)).rejects.toEqual();
+    await expect(getPlaceDetails(overQueryLimitService, placeId)).rejects.toEqual();
 
-    const service_request_denied_result = {
+    const requestDeniedService = {
       getDetails: jest
         .fn()
         .mockImplementation((_, success) =>
@@ -249,19 +247,19 @@ describe('getPlaceDetails', () => {
         ),
     };
 
-    await expect(getPlaceDetails(service_request_denied_result, placeId)).rejects.toEqual();
+    await expect(getPlaceDetails(requestDeniedService, placeId)).rejects.toEqual();
 
-    const service_unknow_error_result = {
+    const unknowErrorService = {
       getDetails: jest
         .fn()
         .mockImplementation((_, success) =>
-          success(null, window.google.maps.places.PlacesServiceStatus.service_unknow_error_result)
+          success(null, window.google.maps.places.PlacesServiceStatus.UNKNOW_ERROR)
         ),
     };
 
-    await expect(getPlaceDetails(service_unknow_error_result, placeId)).rejects.toEqual();
+    await expect(getPlaceDetails(unknowErrorService, placeId)).rejects.toEqual();
 
-    const service_zero_results_result = {
+    const zeroResultsService = {
       getDetails: jest
         .fn()
         .mockImplementation((_, success) =>
@@ -269,49 +267,12 @@ describe('getPlaceDetails', () => {
         ),
     };
 
-    await expect(getPlaceDetails(service_zero_results_result, placeId)).rejects.toEqual();
+    await expect(getPlaceDetails(zeroResultsService, placeId)).rejects.toEqual();
   });
 });
 
-describe('normalizePlace', () => {
-  test('normalizePlace()', () => {
-    const placeToNormalize = {
-      place_id: 'abcde',
-      name: 'name',
-      photos: [{ getUrl: () => 'http://avatar.com/123456' }],
-      types: ['restaurant', 'point_of_interest'],
-      rating: 0,
-      user_ratings_total: 0,
-      geometry: { location: { lat: 0, lng: 0 } },
-      international_phone_number: '+51 799 9999',
-      opening_hours: { isOpen: () => true },
-      website: 'http://google.com',
-      vicinity: 'vicinity',
-      formatted_address: '',
-      reviews: [],
-      url: 'http://google.maps/123456789',
-    };
-
-    expect(normalizePlace(placeToNormalize)).toEqual({
-      address: 'vicinity',
-      cover: 'http://avatar.com/123456',
-      gmap: 'http://google.maps/123456789',
-      id: 'abcde',
-      isOpen: expect.toHaveReturnedWith([], true),
-      location: { lat: 0, lng: 0 },
-      name: 'name',
-      phoneNumber: '+51 799 9999',
-      rating: 0,
-      ratings: 0,
-      reviews: [],
-      types: ['restaurant', 'point of interest'],
-      website: 'http://google.com',
-    });
-  });
-});
-
-describe('normalizePlaces', () => {
-  test('normalizePlaces()', () => {
+describe('normalizePlace + normalizePlaces', () => {
+  test('Normalize data from getNearbyPlaces()', () => {
     const placesToNormalize = [
       {
         place_id: 'abcde',
@@ -352,16 +313,69 @@ describe('normalizePlaces', () => {
 });
 
 describe('getFilteredPlaces', () => {
-  test('getFilteredPlaces()', () => {
-    const places = {
-      abc: {
+  const defaultQuery = '';
+  const defaultRatingFilter = [0, 5];
+  const places = {
+    abc: {
+      address: 'vicinity',
+      cover: 'http://avatar.com/123456',
+      gmap: 'http://google.maps/123456789',
+      id: 'abc',
+      isOpen: expect.toHaveReturnedWith([], true),
+      location: { lat: 0, lng: 0 },
+      name: 'Bar Juanito',
+      phoneNumber: '+51 799 9999',
+      rating: 0,
+      ratings: 0,
+      reviews: [],
+      types: ['restaurant', 'point of interest'],
+      website: 'http://google.com',
+    },
+    def: {
+      address: 'vicinity',
+      cover: 'http://avatar.com/123456',
+      gmap: 'http://google.maps/123456789',
+      id: 'def',
+      isOpen: expect.toHaveReturnedWith([], true),
+      location: { lat: 0, lng: 0 },
+      name: 'Bar Supremo',
+      phoneNumber: '+51 799 9999',
+      rating: 4.3,
+      ratings: 0,
+      reviews: [],
+      types: ['restaurant', 'point of interest'],
+      website: 'http://google.com',
+    },
+    fgh: {
+      address: 'vicinity',
+      cover: 'http://avatar.com/123456',
+      gmap: 'http://google.maps/123456789',
+      id: 'fgh',
+      isOpen: expect.toHaveReturnedWith([], true),
+      location: { lat: 0, lng: 0 },
+      name: 'El Pollo Soleado',
+      phoneNumber: '+51 799 9999',
+      rating: 3.8,
+      ratings: 0,
+      reviews: [],
+      types: ['restaurant', 'point of interest'],
+      website: 'http://google.com',
+    },
+  };
+
+  test('Get filtered places by a given query', () => {
+    const query = 'Bar';
+    const [minRating, maxRating] = defaultRatingFilter;
+
+    expect(getFilteredPlaces(places, query, minRating, maxRating)).toEqual([
+      {
         address: 'vicinity',
         cover: 'http://avatar.com/123456',
         gmap: 'http://google.maps/123456789',
         id: 'abc',
         isOpen: expect.toHaveReturnedWith([], true),
         location: { lat: 0, lng: 0 },
-        name: 'name 1',
+        name: 'Bar Juanito',
         phoneNumber: '+51 799 9999',
         rating: 0,
         ratings: 0,
@@ -369,38 +383,89 @@ describe('getFilteredPlaces', () => {
         types: ['restaurant', 'point of interest'],
         website: 'http://google.com',
       },
-      def: {
+      {
         address: 'vicinity',
         cover: 'http://avatar.com/123456',
         gmap: 'http://google.maps/123456789',
         id: 'def',
         isOpen: expect.toHaveReturnedWith([], true),
         location: { lat: 0, lng: 0 },
-        name: 'name 2',
+        name: 'Bar Supremo',
         phoneNumber: '+51 799 9999',
-        rating: 4,
+        rating: 4.3,
         ratings: 0,
         reviews: [],
         types: ['restaurant', 'point of interest'],
         website: 'http://google.com',
       },
-      fgh: {
-        address: 'vicinity',
-        cover: 'http://avatar.com/123456',
-        gmap: 'http://google.maps/123456789',
-        id: 'fgh',
-        isOpen: expect.toHaveReturnedWith([], true),
-        location: { lat: 0, lng: 0 },
-        name: 'name 3',
-        phoneNumber: '+51 799 9999',
-        rating: 4.2,
-        ratings: 0,
-        reviews: [],
-        types: ['restaurant', 'point of interest'],
-        website: 'http://google.com',
-      },
-    };
-    const query = '3';
+    ]);
+  });
+
+  describe('Get filtered places by a given range of ratings', () => {
+    test('Get filtered places including the new ones', () => {
+      const [minRating, maxRating] = [0, 4];
+
+      expect(getFilteredPlaces(places, defaultQuery, minRating, maxRating)).toEqual([
+        {
+          address: 'vicinity',
+          cover: 'http://avatar.com/123456',
+          gmap: 'http://google.maps/123456789',
+          id: 'abc',
+          isOpen: expect.toHaveReturnedWith([], true),
+          location: { lat: 0, lng: 0 },
+          name: 'Bar Juanito',
+          phoneNumber: '+51 799 9999',
+          rating: 0,
+          ratings: 0,
+          reviews: [],
+          types: ['restaurant', 'point of interest'],
+          website: 'http://google.com',
+        },
+        {
+          address: 'vicinity',
+          cover: 'http://avatar.com/123456',
+          gmap: 'http://google.maps/123456789',
+          id: 'fgh',
+          isOpen: expect.toHaveReturnedWith([], true),
+          location: { lat: 0, lng: 0 },
+          name: 'El Pollo Soleado',
+          phoneNumber: '+51 799 9999',
+          rating: 3.8,
+          ratings: 0,
+          reviews: [],
+          types: ['restaurant', 'point of interest'],
+          website: 'http://google.com',
+        },
+      ]);
+    });
+
+    test('Get filtered places excluding the new ones', () => {
+      const [minRating, maxRating] = [1, 4];
+
+      expect(getFilteredPlaces(places, defaultQuery, minRating, maxRating)).toEqual([
+        {
+          address: 'vicinity',
+          cover: 'http://avatar.com/123456',
+          gmap: 'http://google.maps/123456789',
+          id: 'fgh',
+          isOpen: expect.toHaveReturnedWith([], true),
+          location: { lat: 0, lng: 0 },
+          name: 'El Pollo Soleado',
+          phoneNumber: '+51 799 9999',
+          rating: 3.8,
+          ratings: 0,
+          reviews: [],
+          types: ['restaurant', 'point of interest'],
+          website: 'http://google.com',
+        },
+      ]);
+    });
+
+    test('Get filtered places with at least 4 stars', () => {});
+  });
+
+  test('Get filtered places by a given query and a given range of ratings', () => {
+    const query = 'Bar';
     const [minRating, maxRating] = [4, 5];
 
     expect(getFilteredPlaces(places, query, minRating, maxRating)).toEqual([
@@ -408,12 +473,12 @@ describe('getFilteredPlaces', () => {
         address: 'vicinity',
         cover: 'http://avatar.com/123456',
         gmap: 'http://google.maps/123456789',
-        id: 'fgh',
+        id: 'def',
         isOpen: expect.toHaveReturnedWith([], true),
         location: { lat: 0, lng: 0 },
-        name: 'name 3',
+        name: 'Bar Supremo',
         phoneNumber: '+51 799 9999',
-        rating: 4.2,
+        rating: 4.3,
         ratings: 0,
         reviews: [],
         types: ['restaurant', 'point of interest'],
@@ -424,7 +489,7 @@ describe('getFilteredPlaces', () => {
 });
 
 describe('getSortedPlaces', () => {
-  test('getSortedPlaces()', () => {
+  test('Get sorted places by rating in descending order', () => {
     const places = [
       {
         address: 'vicinity',
@@ -523,26 +588,8 @@ describe('getSortedPlaces', () => {
   });
 });
 
-describe('normalizeReview', () => {
-  test('normalizeReview()', () => {
-    const reviewToNormalize = {
-      profile_photo_url: 'avatar',
-      author_name: 'author',
-      text: 'comment',
-      time: 1576624630,
-    };
-
-    expect(normalizeReview(reviewToNormalize)).toEqual({
-      avatar: 'avatar',
-      author: 'author',
-      comment: 'comment',
-      date: new Date(1576624630 * 1000),
-    });
-  });
-});
-
-describe('normalizeReviews', () => {
-  test('normalizeReviews()', () => {
+describe('normalizeReview + normalizeReviews', () => {
+  test('Normalize data from getPlaceDetails()', () => {
     const reviewsToNormalize = [
       {
         profile_photo_url: 'avatar',
@@ -564,7 +611,7 @@ describe('normalizeReviews', () => {
 });
 
 describe('getSortedReviews', () => {
-  test('getSortedReviews()', () => {
+  test('Get sorted reviews by reverse chronological order', () => {
     const reviews = [
       {
         avatar: 'avatar 2',
@@ -610,11 +657,9 @@ describe('getSortedReviews', () => {
 });
 
 describe('debounce', () => {
-  beforeEach(() => {
+  test('Check the debounce function only call once time to the callback function', () => {
     jest.useFakeTimers();
-  });
 
-  test('debounce()', () => {
     const func = jest.fn();
     const debounced = debounce(func);
 

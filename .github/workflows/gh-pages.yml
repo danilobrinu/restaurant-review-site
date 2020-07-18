@@ -1,0 +1,5 @@
+name: Deploy to gh-pages
+uses: peaceiris/actions-gh-pages@v3.6.4
+  with:
+    # Set an input directory for deployment.
+    publish_dir: build

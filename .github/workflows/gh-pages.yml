@@ -22,7 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Building
+      - name: Installing dependencies
+        run: yarn install
+
+      - name: Building app
         run: yarn build
 
       - name: Deploy

@@ -1,5 +1,34 @@
-name: Deploy to gh-pages
-uses: peaceiris/actions-gh-pages@v3.6.4
-with:
-  # Set an input directory for deployment.
-  publish_dir: build
+name: Deploy to Github Pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Installing dependencies
+        run: yarn install
+      
+      - name: Running tests
+        run: yarn test
+    
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Building
+        run: yarn build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+        env:
+          REACT_APP_GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}

@@ -51,6 +51,11 @@ function App() {
     placeId,
   ]);
 
+  const filteredPlaces = React.useMemo(
+    () => getSortedPlaces(getFilteredPlaces(places, query, minRating, maxRating)),
+    [places, query, minRating, maxRating]
+  );
+
   React.useEffect(() => {
     const gmap = new window.google.maps.Map(mapRef.current, {
       center: new window.google.maps.LatLng(0, 0),
@@ -125,7 +130,7 @@ function App() {
 
     cleanMarkers();
 
-    const markers = Object.values(places).reduce(
+    const markers = Object.values(filteredPlaces).reduce(
       (accumulator, { location: position, id, rating }) => {
         const marker = new window.google.maps.Marker({
           map,
@@ -154,12 +159,7 @@ function App() {
     );
 
     window.markers = markers;
-  }, [map, places]);
-
-  const filteredPlaces = React.useMemo(
-    () => getSortedPlaces(getFilteredPlaces(places, query, minRating, maxRating)),
-    [places, query, minRating, maxRating]
-  );
+  }, [map, filteredPlaces]);
 
   const addNewRestaurant = data => {
     window.places[data.id] = data;
@@ -221,80 +221,78 @@ function App() {
             <header className="flex-none">
               <nav className="flex py-4 border-b">
                 <div className="w-full px-6">
-                  <form>
-                    <div className="flex items-center h-12 shadow-md rounded">
-                      <label className="w-full" htmlFor="query">
-                        <div className="flex">
+                  <div className="flex items-center h-12 shadow-md rounded">
+                    <label className="w-full" htmlFor="query">
+                      <div className="flex">
+                        <div
+                          className="flex flex-initial w-10 h-10 items-center justify-center cursor-pointer"
+                          role="button"
+                          tabIndex="0"
+                        >
+                          <Icon className="text-gray-900" icon="search" />
+                        </div>
+                        <input
+                          id="query"
+                          className="flex-auto h-10 font-bold text-gray-900 placeholder-gray-600 rounded"
+                          name="query"
+                          value={query}
+                          placeholder="Search a Restaurant"
+                          onChange={e => setQuery(e.target.value)}
+                        />
+                        {query.length > 0 && (
                           <div
                             className="flex flex-initial w-10 h-10 items-center justify-center cursor-pointer"
-                            role="button"
                             tabIndex="0"
-                          >
-                            <Icon className="text-gray-900" icon="search" />
-                          </div>
-                          <input
-                            id="query"
-                            className="flex-auto h-10 font-bold text-gray-900 placeholder-gray-600 rounded"
-                            name="query"
-                            value={query}
-                            placeholder="Search a Restaurant"
-                            onChange={e => setQuery(e.target.value)}
-                          />
-                          {query.length > 0 && (
-                            <div
-                              className="flex flex-initial w-10 h-10 items-center justify-center cursor-pointer"
-                              tabIndex="0"
-                              role="button"
-                              onKeyDown={e => {
-                                if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
-                                  e.preventDefault();
+                            role="button"
+                            onKeyDown={e => {
+                              if (e.key === ' ' || e.key === 'Enter' || e.key === 'Spacebar') {
+                                e.preventDefault();
 
-                                  setQuery('');
-                                }
-                              }}
-                              onClick={() => setQuery('')}
-                            >
-                              <Icon className="text-gray-900" icon="times" />
-                            </div>
-                          )}
-                        </div>
-                      </label>
-                    </div>
-                    <div className="flex mt-3">
-                      <div className="flex-1">
-                        <select
-                          className="w-full h-12 px-4 font-bold text-gray-900 bg-gray-200 shadow-inner appearance-none rounded"
-                          value={minRating}
-                          onChange={e => setMinRating(+e.target.value)}
-                        >
-                          <option key="min-rating-option-0" value="0">
-                            New
+                                setQuery('');
+                              }
+                            }}
+                            onClick={() => setQuery('')}
+                          >
+                            <Icon className="text-gray-900" icon="times" />
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                  <div className="flex mt-3">
+                    <div className="flex-1">
+                      <select
+                        className="w-full h-12 px-4 font-bold text-gray-900 bg-gray-200 shadow-inner appearance-none rounded"
+                        value={minRating}
+                        onChange={e => setMinRating(+e.target.value)}
+                      >
+                        <option key="min-rating-option-0" value="0">
+                          New
+                        </option>
+                        {range(1, 5).map(option => (
+                          <option key={`min-rating-option-${option}`} value={option}>
+                            {option} (Star{option > 1 ? 's' : ''})
                           </option>
-                          {range(1, 5).map(option => (
-                            <option key={`min-rating-option-${option}`} value={option}>
-                              {option} (Star{option > 1 ? 's' : ''})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="flex items-center justify-center w-12">
-                        <span className="font-bold">⯈</span>
-                      </div>
-                      <div className="flex-1">
-                        <select
-                          className="w-full h-12 px-4 font-bold text-gray-900 bg-gray-200 shadow-inner appearance-none rounded"
-                          value={maxRating}
-                          onChange={e => setMaxRating(+e.target.value)}
-                        >
-                          {range(minRating + 1, 6).map(option => (
-                            <option key={`max-rating-option-${option}`} value={option}>
-                              {option} (Star{option > 1 ? 's' : ''})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                        ))}
+                      </select>
                     </div>
-                  </form>
+                    <div className="flex items-center justify-center w-12">
+                      <span className="font-bold">⯈</span>
+                    </div>
+                    <div className="flex-1">
+                      <select
+                        className="w-full h-12 px-4 font-bold text-gray-900 bg-gray-200 shadow-inner appearance-none rounded"
+                        value={maxRating}
+                        onChange={e => setMaxRating(+e.target.value)}
+                      >
+                        {range(minRating + 1, 6).map(option => (
+                          <option key={`max-rating-option-${option}`} value={option}>
+                            {option} (Star{option > 1 ? 's' : ''})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </nav>
             </header>

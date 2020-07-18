@@ -1,3 +1,5 @@
+![Deploy to Github Pages](https://github.com/danilobrinu/restaurant-review-site/workflows/Deploy%20to%20Github%20Pages/badge.svg)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

@@ -228,6 +228,9 @@ export const getFilteredPlaces = (places, query, minRating, maxRating) =>
 export const getSortedPlaces = places =>
   [...places].sort((left, right) => right.rating - left.rating);
 
+/**
+ * noop
+ */
 export const noop = () => {};
 
 /**
@@ -249,6 +252,11 @@ export const uniqid = () => (new Date().getTime() * Math.random()).toString(32).
 export const cleanMarkers = () =>
   Object.values(window.markers).forEach(marker => marker.setMap(null));
 
+/**
+ * debounce
+ * @param {*} func
+ * @param {*} delay in milli-seconds
+ */
 export const debounce = (func, delay = 150) => {
   let timer;
 

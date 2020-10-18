@@ -408,33 +408,7 @@ function App() {
           </div>
         )}
 
-        <div className="flex flex-auto relative">
-          {isLoaded ? (
-            <>
-              <GoogleMap
-                mapContainerStyle={{ width: '100%' }}
-                center={userPosition}
-                zoom={16}
-                onLoad={map => {
-                  setMap(map);
-                  setService(new window.google.maps.places.PlacesService(map));
-                }}
-                onClick={e => {
-                  setLocationClicked(e.latLng.toJSON());
-                  setShowAddRestaurant(true);
-                }}
-                onBoundsChanged={debounce(() => {
-                  setCenterPosition(map.getCenter());
-                })}
-              >
-                <></>
-              </GoogleMap>
-            </>
-          ) : (
-            <>Loading...</>
-          )}
-          {/* <div ref={mapRef} className="absolute inset-0" /> */}
-        </div>
+        <div className="flex flex-auto relative">{isLoaded ? <></> : <>Loading...</>}</div>
       </div>
     </div>
   );

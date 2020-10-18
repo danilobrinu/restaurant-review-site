@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLoadScript, GoogleMap, Marker } from '@react-google-maps/api';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +32,12 @@ window.places = {};
 window.markers = {};
 
 function App() {
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GMAPS_API_KEY,
+    libraries: ['places'],
+  });
   const [query, setQuery] = React.useState('');
-  const [centerPosition, setCenterPosition] = React.useState(new window.google.maps.LatLng(0, 0));
+  const [centerPosition, setCenterPosition] = React.useState({ lat: 0, lng: 0 });
   const [userPosition, setUserPosition] = React.useState(null);
   const [places, setPlaces] = React.useState({});
   const [placeId, setPlaceId] = React.useState(null);
@@ -44,7 +49,6 @@ function App() {
   const [showAddRestaurant, setShowAddRestaurant] = React.useState(false);
   const [locationClicked, setLocationClicked] = React.useState({ lat: 0, lng: 0 });
   const showPlaceDetails = !!placeId;
-  const mapRef = React.useRef();
 
   const getPlaceDetailsQuery = React.useCallback(() => getPlaceDetails(service, placeId), [
     service,
@@ -55,30 +59,6 @@ function App() {
     () => getSortedPlaces(getFilteredPlaces(places, query, minRating, maxRating)),
     [places, query, minRating, maxRating]
   );
-
-  React.useEffect(() => {
-    const gmap = new window.google.maps.Map(mapRef.current, {
-      center: new window.google.maps.LatLng(0, 0),
-      zoom: 16,
-      fullscreenControl: false,
-      mapTypeControl: false,
-      gestureHandling: 'cooperative',
-    });
-    const gservice = new window.google.maps.places.PlacesService(gmap);
-
-    gmap.addListener('click', e => {
-      setLocationClicked(e.latLng.toJSON());
-      setShowAddRestaurant(true);
-    });
-
-    gmap.addListener(
-      'bounds_changed',
-      debounce(() => setCenterPosition(gmap.getCenter()))
-    );
-
-    setMap(gmap);
-    setService(gservice);
-  }, []);
 
   React.useEffect(() => {
     getCurrentPosition()
@@ -212,6 +192,8 @@ function App() {
         break;
     }
   }, []);
+
+  console.log(userPosition, centerPosition);
 
   return (
     <div className="absolute inset-0">
@@ -425,8 +407,32 @@ function App() {
           </div>
         )}
 
-        <div className="flex-auto relative">
-          <div ref={mapRef} className="absolute inset-0" />
+        <div className="flex flex-auto relative">
+          {isLoaded ? (
+            <>
+              <GoogleMap
+                mapContainerStyle={{ width: '100%' }}
+                center={userPosition}
+                zoom={16}
+                onLoad={map => {
+                  setMap(map);
+                  setService(new window.google.maps.places.PlacesService(map));
+                }}
+                onClick={e => {
+                  setLocationClicked(e.latLng.toJSON());
+                  setShowAddRestaurant(true);
+                }}
+                onBoundsChanged={debounce(() => {
+                  setCenterPosition(map.getCenter());
+                })}
+              >
+                <></>
+              </GoogleMap>
+            </>
+          ) : (
+            <>Loading...</>
+          )}
+          {/* <div ref={mapRef} className="absolute inset-0" /> */}
         </div>
       </div>
     </div>

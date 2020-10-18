@@ -44,8 +44,8 @@ export const getCurrentPosition = async () =>
   new Promise((resolve, reject) => {
     if ('geolocation' in window.navigator) {
       window.navigator.geolocation.getCurrentPosition(
-        ({ coords: { latitude, longitude } }) => {
-          resolve(new window.google.maps.LatLng(latitude, longitude));
+        ({ coords: { latitude: lat, longitude: lng } }) => {
+          resolve({ lat, lng });
         },
         () => reject(),
         {

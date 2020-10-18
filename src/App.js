@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLoadScript, GoogleMap, Marker } from '@react-google-maps/api';
+import { useLoadScript, GoogleMap } from '@react-google-maps/api';
+import lazy from '@loadable/component';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,13 +19,13 @@ import {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import Scrollable from './components/Scrollable';
-import Query from './components/Query';
-import Place from './components/Place';
-import PlaceDetails from './components/PlaceDetails';
-import PlaceDetailsPlaceholder from './components/PlaceDetailsPlaceholder';
-import AddRestaurantForm from './components/AddRestaurantForm';
-import AddReviewForm from './components/AddReviewForm';
+const Scrollable = lazy(() => import('./components/Scrollable'));
+const Query = lazy(() => import('./components/Query'));
+const Place = lazy(() => import('./components/Place'));
+const PlaceDetails = lazy(() => import('./components/PlaceDetails'));
+const PlaceDetailsPlaceholder = lazy(() => import('./components/PlaceDetailsPlaceholder'));
+const AddRestaurantForm = lazy(() => import('./components/AddRestaurantForm'));
+const AddReviewForm = lazy(() => import('./components/AddReviewForm'));
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
